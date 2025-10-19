@@ -16,9 +16,9 @@ export default function Landing() {
         resizeMode="cover"
         className="flex-1"
       >
-        <View className="flex-1 bg-black/70 px-6 py-12 justify-end">
+        <View className="flex-1 bg-background/70 px-6 py-12 justify-end">
           <View className="gap-3 mb-12">
-            <Text variant="h1" className="text-left text-white">
+            <Text variant="h1" className="text-left">
               Predict the Future, Win Big
             </Text>
             <Text variant="lead" className="text-muted-foreground">
@@ -26,8 +26,8 @@ export default function Landing() {
             </Text>
           </View>
           <Link href="/(auth)/auth" asChild>
-            <Button className="h-12 rounded-xl bg-blue-600">
-              <Text className="text-white text-lg">Get Started</Text>
+            <Button className="h-12 rounded-xl">
+              <Text className="text-lg">Get Started</Text>
             </Button>
           </Link>
         </View>

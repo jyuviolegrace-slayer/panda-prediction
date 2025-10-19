@@ -19,7 +19,7 @@ export default function LeaderboardScreen() {
   return (
     <>
       <Stack.Screen options={{ title: 'Leaderboard' }} />
-      <View className="flex-1 bg-black p-4">
+      <View className="flex-1 bg-background p-4">
         <ToggleGroup
           options={[
             { label: 'Today', value: 'today' },

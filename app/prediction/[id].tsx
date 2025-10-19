@@ -35,10 +35,10 @@ export default function PredictionDetail() {
   return (
     <>
       <Stack.Screen options={{ title: 'Prediction' }} />
-      <ScrollView className="flex-1 bg-black" contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 24 }}>
         {prediction.thumbnail && <Image source={{ uri: prediction.thumbnail }} className="h-56 w-full" />}
         <View className="p-4 gap-3">
-          <Text variant="h3" className="text-white">{prediction.title}</Text>
+          <Text variant="h3">{prediction.title}</Text>
           <View className="flex-row gap-2">
             <Badge variant="success">Pool: {prediction.pool.toFixed(2)} USDC</Badge>
             <Badge variant="secondary">Votes: {prediction.votes}</Badge>
@@ -71,7 +71,7 @@ export default function PredictionDetail() {
             <Avatar source={{ uri: prediction.author.avatar }} size={40} />
             <View>
               <Text className="font-semibold">{prediction.author.username}</Text>
-              <Text className="text-blue-400">{prediction.author.twitter}</Text>
+              <Text className="text-primary">{prediction.author.twitter}</Text>
             </View>
           </View>
 
@@ -135,7 +135,7 @@ function VoteModal({ visible, onClose, predictionId, optionId }: { visible: bool
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 items-center justify-end bg-black/60">
+      <View className="flex-1 items-center justify-end bg-background/60">
         <View className="w-full rounded-t-2xl bg-card p-4">
           <Text variant="h4" className="mb-3">Place your vote</Text>
           <RadioGroup
@@ -162,8 +162,8 @@ function VoteModal({ visible, onClose, predictionId, optionId }: { visible: bool
             <Button variant="outline" className="flex-1" onPress={onClose}>
               <Text>Cancel</Text>
             </Button>
-            <Button className="flex-1 bg-blue-600" onPress={submit}>
-              <Text className="text-white">Confirm</Text>
+            <Button className="flex-1" onPress={submit}>
+              <Text>Confirm</Text>
             </Button>
           </View>
         </View>

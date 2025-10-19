@@ -14,7 +14,7 @@ export default function ProfileScreen() {
   return (
     <>
       <Stack.Screen options={{ title: 'Profile' }} />
-      <View className="flex-1 bg-black">
+      <View className="flex-1 bg-background">
         <View className="relative">
           <Image
             source={{
@@ -22,11 +22,11 @@ export default function ProfileScreen() {
             }}
             className="h-40 w-full"
           />
-          <Image source={{ uri: user.avatar }} className="absolute -bottom-8 left-6 h-20 w-20 rounded-full border-2 border-black" />
+          <Image source={{ uri: user.avatar }} className="absolute -bottom-8 left-6 h-20 w-20 rounded-full border-2 border-background" />
         </View>
         <View className="mt-12 px-6 gap-2">
-          <Text variant="h3" className="text-white">{user.username}</Text>
-          <Text className="text-blue-400">{user.twitter}</Text>
+          <Text variant="h3">{user.username}</Text>
+          <Text className="text-primary">{user.twitter}</Text>
         </View>
         <View className="mt-6 px-6 flex-row gap-3">
           <Card className="flex-1 items-center py-4">

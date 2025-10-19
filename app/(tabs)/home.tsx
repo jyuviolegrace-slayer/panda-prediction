@@ -35,14 +35,14 @@ export default function HomeScreen() {
             </Pressable>
           ),
           headerRight: () => (
-            <Button className="mr-2 rounded-full bg-blue-600" onPress={() => router.push('/create-vote')}>
-              <Icon as={PlusIcon} className="text-white" />
-              <Text className="text-white">Create Vote</Text>
+            <Button className="mr-2 rounded-full" onPress={() => router.push('/create-vote')}>
+              <Icon as={PlusIcon} />
+              <Text>Create Vote</Text>
             </Button>
           ),
         }}
       />
-      <View className="flex-1 bg-black p-4">
+      <View className="flex-1 bg-background p-4">
         {loading ? (
           <View className="gap-4">
             {Array.from({ length: 5 }).map((_, i) => (

@@ -56,7 +56,7 @@ export default function CreateVoteScreen() {
   return (
     <>
       <Stack.Screen options={{ title: 'Create Vote' }} />
-      <ScrollView className="flex-1 bg-black p-4" contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ paddingBottom: 24 }}>
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-muted-foreground">Step {step} of 3</Text>
           <View className="flex-row gap-2">
@@ -67,7 +67,7 @@ export default function CreateVoteScreen() {
             )}
             {step < 3 && (
               <Button onPress={() => setStep((s) => (s + 1) as 1 | 2 | 3)}>
-                <Text className="text-white">Next</Text>
+                <Text>Next</Text>
               </Button>
             )}
           </View>
@@ -180,7 +180,7 @@ export default function CreateVoteScreen() {
             )}
 
             <Button onPress={() => setStep(3)} className="mt-2">
-              <Text className="text-white">Preview</Text>
+              <Text>Preview</Text>
             </Button>
           </View>
         )}
@@ -207,8 +207,8 @@ export default function CreateVoteScreen() {
                 </View>
               </CardContent>
             </Card>
-            <Button className="bg-blue-600" onPress={onLaunch}>
-              <Text className="text-white">Launch</Text>
+            <Button onPress={onLaunch}>
+              <Text>Launch</Text>
             </Button>
           </View>
         )}
