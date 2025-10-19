@@ -1,5 +1,6 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
+import { addCommentLocal, getAllPredictionsLocal, getAllPredictionsRemote, insertPredictionLocal, insertPredictionRemote, updatePredictionVoteLocal, upsertPredictionsLocal } from '@/lib/repositories/predictions';
 
 export type User = {
   id: string;
@@ -164,8 +165,32 @@ function initialLeaderboard(): Store['leaderboard'] {
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [predictions, setPredictions] = useState<Prediction[]>(initialPredictions());
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [leaderboard] = useState(initialLeaderboard());
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const remote = await getAllPredictionsRemote();
+        if (remote && remote.length > 0) {
+          setPredictions(remote);
+          upsertPredictionsLocal(remote);
+          return;
+        }
+      } catch (e) {
+        // ignore
+      }
+      const local = getAllPredictionsLocal();
+      if (!local.length) {
+        const seed = initialPredictions();
+        upsertPredictionsLocal(seed);
+        setPredictions(seed);
+      } else {
+        setPredictions(local);
+      }
+    }
+    load();
+  }, []);
 
   const loginWithTwitter = useCallback(() => {
     const mock: User = {
@@ -185,11 +210,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addPrediction = useCallback((p: Prediction) => {
+    insertPredictionLocal(p);
     setPredictions(prev => [p, ...prev]);
+    insertPredictionRemote(p).catch(() => {});
   }, []);
 
   const voteOnPrediction = useCallback(
     (predictionId: string, optionId: string, amount: number) => {
+      updatePredictionVoteLocal(predictionId, optionId, amount);
       setPredictions(prev =>
         prev.map(p => {
           if (p.id !== predictionId) return p;
@@ -207,6 +235,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   );
 
   const addComment = useCallback((predictionId: string, comment: Comment) => {
+    addCommentLocal(predictionId, comment);
     setPredictions(prev => prev.map(p => (p.id === predictionId ? { ...p, comments: [comment, ...p.comments] } : p)));
   }, []);
 
