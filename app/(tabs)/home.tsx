@@ -10,15 +10,30 @@ import { Badge } from '@/components/ui/badge';
 import { Icon } from '@/components/ui/icon';
 import { PlusIcon } from 'lucide-react-native';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getAllPredictionsRemote, upsertPredictionsLocal } from '@/lib/repositories/predictions';
 
 export default function HomeScreen() {
-  const { predictions, user } = useStore();
+  const { predictions, user, setPredictions } = useStore();
   const [loading, setLoading] = React.useState(true);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   React.useEffect(() => {
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
   }, []);
+
+  const onRefresh = React.useCallback(async () => {
+    try {
+      setRefreshing(true);
+      const remote = await getAllPredictionsRemote();
+      if (remote && remote.length) {
+        upsertPredictionsLocal(remote);
+        setPredictions(remote);
+      }
+    } finally {
+      setRefreshing(false);
+    }
+  }, [setPredictions]);
 
   return (
     <>
@@ -55,6 +70,8 @@ export default function HomeScreen() {
             keyExtractor={item => item.id}
             contentContainerStyle={{ gap: 12, paddingBottom: 24 }}
             renderItem={({ item }) => <PredictionCard item={item} />}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
           />
         )}
       </View>

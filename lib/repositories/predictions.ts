@@ -5,19 +5,31 @@ import { getSupabase, hasSupabaseConfig } from '@/lib/supabase';
 import type { Prediction, Comment as AppComment } from '@/lib/store';
 
 function mapRowToApp(row: PredictionRow): Prediction {
+  const parsedComments = typeof row.comments === 'string' ? safeParse(row.comments, []) : (row.comments ?? []);
+  const parsedOptions = typeof row.options === 'string' ? safeParse(row.options, []) : (row.options ?? []);
+  const parsedAuthor = typeof row.author === 'string' ? safeParse(row.author, { username: '', avatar: '', twitter: '' }) : row.author;
+  const parsedTopVoters = typeof row.topVoters === 'string' ? safeParse(row.topVoters, []) : (row.topVoters ?? []);
   return {
     id: row.id,
     title: row.title,
     thumbnail: row.thumbnail ?? null,
     votes: row.votes ?? 0,
     pool: row.pool ?? 0,
-    comments: (row.comments ?? []) as AppComment[],
-    options: row.options ?? [],
+    comments: parsedComments as AppComment[],
+    options: parsedOptions as any,
     duration: row.duration,
     createdAt: row.createdAt,
-    author: row.author,
-    topVoters: (row.topVoters ?? []) as { avatar: string }[],
+    author: parsedAuthor as any,
+    topVoters: parsedTopVoters as { avatar: string }[],
   } as Prediction;
+}
+
+function safeParse<T>(val: string, fallback: T): T {
+  try {
+    return JSON.parse(val) as T;
+  } catch {
+    return fallback;
+  }
 }
 
 function mapAppToRow(p: Prediction): NewPredictionRow {
@@ -27,12 +39,12 @@ function mapAppToRow(p: Prediction): NewPredictionRow {
     thumbnail: p.thumbnail ?? null,
     votes: p.votes,
     pool: p.pool,
-    comments: p.comments as any,
-    options: p.options as any,
+    comments: JSON.stringify(p.comments ?? []),
+    options: JSON.stringify(p.options ?? []),
     duration: p.duration,
     createdAt: p.createdAt,
-    author: p.author as any,
-    topVoters: p.topVoters as any,
+    author: JSON.stringify(p.author ?? null),
+    topVoters: JSON.stringify(p.topVoters ?? []),
   } satisfies NewPredictionRow;
 }
 
@@ -95,7 +107,23 @@ export async function getAllPredictionsRemote(): Promise<Prediction[] | null> {
     console.warn('Supabase fetch error', error);
     return null;
   }
-  return (data as any as Prediction[]) ?? null;
+  const rows = (data as any[]) || [];
+  return rows.map(r => {
+    const createdAt = typeof r.createdAt === 'number' ? r.createdAt : (r.created_at ? Date.parse(r.created_at) : Date.now());
+    return {
+      id: r.id,
+      title: r.title,
+      thumbnail: r.thumbnail ?? null,
+      votes: r.votes ?? 0,
+      pool: r.pool ?? 0,
+      comments: typeof r.comments === 'string' ? safeParse(r.comments, []) : (r.comments ?? []),
+      options: typeof r.options === 'string' ? safeParse(r.options, []) : (r.options ?? []),
+      duration: r.duration,
+      createdAt,
+      author: typeof r.author === 'string' ? safeParse(r.author, { username: '', avatar: '', twitter: '' }) : r.author,
+      topVoters: typeof r.topVoters === 'string' ? safeParse(r.topVoters, []) : (r.topVoters ?? []),
+    } as Prediction;
+  });
 }
 
 export async function insertPredictionRemote(item: Prediction): Promise<boolean> {
@@ -105,6 +133,18 @@ export async function insertPredictionRemote(item: Prediction): Promise<boolean>
   const { error } = await supabase.from('predictions').insert(mapAppToRow(item) as any);
   if (error) {
     console.warn('Supabase insert error', error);
+    return false;
+  }
+  return true;
+}
+
+export async function upsertPredictionRemote(item: Prediction): Promise<boolean> {
+  if (!hasSupabaseConfig) return false;
+  const supabase = getSupabase();
+  if (!supabase) return false;
+  const { error } = await supabase.from('predictions').upsert(mapAppToRow(item) as any);
+  if (error) {
+    console.warn('Supabase upsert error', error);
     return false;
   }
   return true;
