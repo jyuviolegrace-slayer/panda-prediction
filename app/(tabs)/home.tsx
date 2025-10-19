@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Icon } from '@/components/ui/icon';
 import { PlusIcon } from 'lucide-react-native';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllPredictionsRemote, upsertPredictionsLocal } from '@/lib/repositories/predictions';
+import { getAllPredictionsRemote } from '@/lib/repositories/predictions';
 
 export default function HomeScreen() {
   const { predictions, user, setPredictions } = useStore();
@@ -27,7 +27,6 @@ export default function HomeScreen() {
       setRefreshing(true);
       const remote = await getAllPredictionsRemote();
       if (remote && remote.length) {
-        upsertPredictionsLocal(remote);
         setPredictions(remote);
       }
     } finally {

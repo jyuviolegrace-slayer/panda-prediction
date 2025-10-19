@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
-import { addCommentLocal, getAllPredictionsLocal, getAllPredictionsRemote, insertPredictionLocal, insertPredictionRemote, updatePredictionVoteLocal, upsertPredictionsLocal, upsertPredictionRemote } from '@/lib/repositories/predictions';
+import { getAllPredictionsRemote, insertPredictionRemote, upsertPredictionRemote } from '@/lib/repositories/predictions';
 
 export type User = {
   id: string;
@@ -174,20 +174,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const remote = await getAllPredictionsRemote();
         if (remote && remote.length > 0) {
           setPredictions(remote);
-          upsertPredictionsLocal(remote);
           return;
         }
       } catch (e) {
         // ignore
       }
-      const local = getAllPredictionsLocal();
-      if (!local.length) {
-        const seed = initialPredictions();
-        upsertPredictionsLocal(seed);
-        setPredictions(seed);
-      } else {
-        setPredictions(local);
-      }
+      const seed = initialPredictions();
+      setPredictions(seed);
     }
     load();
   }, []);
@@ -210,14 +203,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addPrediction = useCallback((p: Prediction) => {
-    insertPredictionLocal(p);
     setPredictions(prev => [p, ...prev]);
     insertPredictionRemote(p).catch(() => {});
   }, []);
 
   const voteOnPrediction = useCallback(
     (predictionId: string, optionId: string, amount: number) => {
-      updatePredictionVoteLocal(predictionId, optionId, amount);
       let updated: Prediction | null = null;
       setPredictions(prev =>
         prev.map(p => {
@@ -238,7 +229,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   );
 
   const addComment = useCallback((predictionId: string, comment: Comment) => {
-    addCommentLocal(predictionId, comment);
     let updated: Prediction | null = null;
     setPredictions(prev => prev.map(p => {
       if (p.id !== predictionId) return p;
