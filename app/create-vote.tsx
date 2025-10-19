@@ -8,6 +8,7 @@ import { TextArea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { RadioGroup } from '@/components/ui/radio-group';
 import { useStore, type Prediction } from '@/lib/store';
+import { pickAndUploadImage } from '@/lib/supabase';
 
 export default function CreateVoteScreen() {
   const { addPrediction, user } = useStore();
@@ -52,6 +53,16 @@ export default function CreateVoteScreen() {
     addPrediction(newPrediction);
     router.replace('/(tabs)/home');
   };
+
+  async function onPickCover() {
+    const url = await pickAndUploadImage('thumbnails', 'covers');
+    if (url) setCoverImage(url);
+  }
+
+  async function onPickOption(idx: number) {
+    const url = await pickAndUploadImage('option-images', 'options');
+    if (url) setOptionImages(prev => ({ ...prev, [idx]: url }));
+  }
 
   return (
     <>
@@ -101,8 +112,8 @@ export default function CreateVoteScreen() {
               </View>
               {coverEnabled && (
                 <View className="gap-2">
-                  <Button variant="outline" onPress={() => setCoverImage('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop')}>
-                    <Text>Upload cover (mock)</Text>
+                  <Button variant="outline" onPress={onPickCover}>
+                    <Text>Upload cover</Text>
                   </Button>
                   {coverImage && <Image source={{ uri: coverImage }} className="h-40 w-full rounded-xl" />}
                 </View>
@@ -118,14 +129,9 @@ export default function CreateVoteScreen() {
                     <View className="gap-2" key={idx}>
                       <Button
                         variant="outline"
-                        onPress={() =>
-                          setOptionImages(prev => ({
-                            ...prev,
-                            [idx]: 'https://images.unsplash.com/photo-1520975624745-56d1dfef3854?q=80&w=1200&auto=format&fit=crop',
-                          }))
-                        }
+                        onPress={() => onPickOption(idx)}
                       >
-                        <Text>Upload image for option {idx + 1} (mock)</Text>
+                        <Text>Upload image for option {idx + 1}</Text>
                       </Button>
                       {optionImages[idx] && (
                         <Image source={{ uri: optionImages[idx]! }} className="h-32 w-full rounded-xl" />

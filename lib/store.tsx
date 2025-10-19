@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
-import { addCommentLocal, getAllPredictionsLocal, getAllPredictionsRemote, insertPredictionLocal, insertPredictionRemote, updatePredictionVoteLocal, upsertPredictionsLocal } from '@/lib/repositories/predictions';
+import { addCommentLocal, getAllPredictionsLocal, getAllPredictionsRemote, insertPredictionLocal, insertPredictionRemote, updatePredictionVoteLocal, upsertPredictionsLocal, upsertPredictionRemote } from '@/lib/repositories/predictions';
 
 export type User = {
   id: string;
@@ -218,25 +218,34 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const voteOnPrediction = useCallback(
     (predictionId: string, optionId: string, amount: number) => {
       updatePredictionVoteLocal(predictionId, optionId, amount);
+      let updated: Prediction | null = null;
       setPredictions(prev =>
         prev.map(p => {
           if (p.id !== predictionId) return p;
           const options = p.options.map(o => (o.id === optionId ? { ...o, votes: o.votes + 1 } : o));
-          return {
+          updated = {
             ...p,
             votes: p.votes + 1,
             pool: Math.round((p.pool + amount) * 100) / 100,
             options,
           };
+          return updated;
         })
       );
+      if (updated) upsertPredictionRemote(updated).catch(() => {});
     },
     []
   );
 
   const addComment = useCallback((predictionId: string, comment: Comment) => {
     addCommentLocal(predictionId, comment);
-    setPredictions(prev => prev.map(p => (p.id === predictionId ? { ...p, comments: [comment, ...p.comments] } : p)));
+    let updated: Prediction | null = null;
+    setPredictions(prev => prev.map(p => {
+      if (p.id !== predictionId) return p;
+      updated = { ...p, comments: [comment, ...p.comments] };
+      return updated;
+    }));
+    if (updated) upsertPredictionRemote(updated).catch(() => {});
   }, []);
 
   const value = useMemo<Store>(

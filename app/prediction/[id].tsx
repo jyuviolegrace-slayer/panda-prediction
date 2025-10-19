@@ -24,13 +24,31 @@ function useCountdown(endMs: number) {
 
 export default function PredictionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { predictions } = useStore();
+  const { predictions, user, addComment } = useStore();
   const prediction = predictions.find(p => p.id === id);
 
   if (!prediction) return null;
 
   const endTime = prediction.createdAt + prediction.duration;
   const remaining = useCountdown(endTime);
+
+  const [commentText, setCommentText] = React.useState('');
+  function submitComment() {
+    if (!prediction) return;
+    const text = commentText.trim();
+    if (!text) return;
+    const newComment = {
+      id: Math.random().toString(36).slice(2, 9),
+      user: {
+        username: user?.username || 'anon',
+        avatar: user?.avatar || 'https://i.pravatar.cc/150?img=66',
+      },
+      text,
+      timestamp: Date.now(),
+    } as const;
+    addComment(prediction.id, newComment as any);
+    setCommentText('');
+  }
 
   return (
     <>
@@ -92,6 +110,17 @@ export default function PredictionDetail() {
               </View>
             )}
           />
+          <View className="mt-3 flex-row items-center gap-2">
+            <CardInput
+              className="flex-1"
+              placeholder="Write a comment..."
+              value={commentText}
+              onChangeText={setCommentText}
+            />
+            <Button onPress={submitComment}>
+              <Text>Post</Text>
+            </Button>
+          </View>
         </View>
       </ScrollView>
     </>
