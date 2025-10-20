@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { getAllPredictionsRemote, insertPredictionRemote, upsertPredictionRemote } from '@/lib/repositories/predictions';
+import { usePrivy, useLoginWithOAuth, type LoginWithOAuthInput } from '@privy-io/expo';
 
 export type User = {
   id: string;
@@ -78,7 +79,6 @@ export type Store = {
 const StoreContext = createContext<Store | undefined>(undefined);
 
 function randomAvatar(seed: number) {
-  // Use pravatar as placeholder avatars
   const n = (seed % 70) + 1;
   return `https://i.pravatar.cc/150?img=${n}`;
 }
@@ -168,6 +168,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [leaderboard] = useState(initialLeaderboard());
 
+  const { user: privyUser, isReady, logout: privyLogout } = usePrivy() as any;
+  const oauth = useLoginWithOAuth({
+    onError: (err: any) => {
+      console.log('OAuth error', err);
+    },
+  });
+
   useEffect(() => {
     async function load() {
       try {
@@ -185,22 +192,57 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     load();
   }, []);
 
+  // When Privy is ready and has a user, sync to our store and route to home
+  useEffect(() => {
+    if (!isReady) return;
+    if (privyUser) {
+      const twitter = (() => {
+        try {
+          const social = (privyUser as any)?.socialAccounts || (privyUser as any)?.linkedAccounts || [];
+          const tw = social.find((s: any) => (s?.platform || s?.type) === 'twitter');
+          if (tw?.username) return `@${tw.username}`;
+          if (tw?.handle) return `@${tw.handle}`;
+          return '@twitter';
+        } catch {
+          return '@twitter';
+        }
+      })();
+      const avatar = (() => {
+        try {
+          const social = (privyUser as any)?.socialAccounts || (privyUser as any)?.linkedAccounts || [];
+          const tw = social.find((s: any) => (s?.platform || s?.type) === 'twitter');
+          return tw?.profilePictureUrl || tw?.avatarUrl || randomAvatar(9);
+        } catch {
+          return randomAvatar(9);
+        }
+      })();
+      const mapped: User = {
+        id: String((privyUser as any)?.id || (privyUser as any)?._id || Math.random().toString(36).slice(2, 9)),
+        username: (privyUser as any)?.displayName || (privyUser as any)?.nickname || 'Panda',
+        twitter,
+        avatar,
+        stats: { votes: 0, accuracy: 0, winnings: 0 },
+      };
+      setUser(mapped);
+      router.replace('/(tabs)/home');
+    }
+  }, [isReady, privyUser]);
+
   const loginWithTwitter = useCallback(() => {
-    const mock: User = {
-      id: 'u1',
-      username: 'Panda',
-      twitter: '@panda',
-      avatar: randomAvatar(9),
-      stats: { votes: 42, accuracy: 74, winnings: 128.5 },
-    };
-    setUser(mock);
-    router.replace('/(tabs)/home');
-  }, []);
+    try {
+      oauth.login({ provider: 'twitter' } as LoginWithOAuthInput);
+    } catch (e) {
+      // Ignore
+    }
+  }, [oauth]);
 
   const logout = useCallback(() => {
+    try {
+      privyLogout?.();
+    } catch {}
     setUser(null);
     router.replace('/(auth)/landing');
-  }, []);
+  }, [privyLogout]);
 
   const addPrediction = useCallback((p: Prediction) => {
     setPredictions(prev => [p, ...prev]);

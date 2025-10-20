@@ -32,10 +32,15 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@privy-io/expo"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "privyAppId": "cmgyzoqbq01fkju0d01gu2zv2",
+      "privyClientId": "client-LOCAL_DEV"
     }
   }
 }
