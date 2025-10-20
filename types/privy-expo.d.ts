@@ -1,7 +1,7 @@
-declare module '@privy-io/expo' {
-  export const PrivyProvider: any;
-  export function usePrivy(): any;
-  export function useLoginWithOAuth(options?: any): any;
-  export function useLoginWithEmail(options?: any): any;
-  export type LoginWithOAuthInput = any;
-}
+// declare module '@privy-io/expo' {
+//   export const PrivyProvider: any;
+//   export function usePrivy(): any;
+//   export function useLoginWithOAuth(options?: any): any;
+//   export function useLoginWithEmail(options?: any): any;
+//   export type LoginWithOAuthInput = any;
+// }

@@ -7,20 +7,15 @@ import { useStore } from '@/lib/store';
 import { Icon } from '@/components/ui/icon';
 import { TwitterIcon } from 'lucide-react-native';
 import { CardInput } from '@/components/ui/card-input';
-import { useLoginWithEmail } from '@privy-io/expo';
 
 export default function Auth() {
-  const { loginWithTwitter } = useStore();
+  const { loginWithTwitter, sendCode, loginWithCode } = useStore();
 
   const [email, setEmail] = React.useState('');
   const [code, setCode] = React.useState('');
   const [codeSent, setCodeSent] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
-
-  const { sendCode, loginWithCode } = useLoginWithEmail({
-    onError: (err: any) => setError(err?.message || 'Login failed'),
-  }) as any;
 
   async function onSendCode() {
     setError(null);
@@ -50,8 +45,10 @@ export default function Auth() {
   return (
     <>
       <Stack.Screen options={{ title: 'Sign In' }} />
-      <View className="flex-1 bg-background px-6 justify-center gap-6">
-        <Text variant="h2" className="text-center">Sign in with Twitter to start predicting.</Text>
+      <View className="flex-1 justify-center gap-6 bg-background px-6">
+        <Text variant="h2" className="text-center">
+          Sign in with Twitter to start predicting.
+        </Text>
         <Button className="h-12 rounded-xl" onPress={loginWithTwitter}>
           <Icon as={TwitterIcon} size={18} />
           <Text className="text-lg">Connect with Twitter</Text>
@@ -83,7 +80,7 @@ export default function Auth() {
               <Text>Login</Text>
             </Button>
           )}
-          {error && <Text className="text-destructive text-center">{error}</Text>}
+          {error && <Text className="text-center text-destructive">{error}</Text>}
         </View>
       </View>
     </>

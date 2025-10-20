@@ -6,7 +6,7 @@ type UsersInsert = Database['public']['Tables']['users']['Insert'];
 
 function mapAppUserToRow(u: AppUser): UsersInsert {
   return {
-    id: u.id,
+    // id: u.id,
     username: u.username,
     twitter_handle: u.twitter || null,
     avatar_url: u.avatar || null,
@@ -23,7 +23,8 @@ export async function upsertUserRemote(user: AppUser): Promise<boolean> {
   const supabase = getSupabase();
   if (!supabase) return false;
   const row = mapAppUserToRow(user);
-  const { error } = await supabase.from('users').upsert(row, { onConflict: 'id' });
+  console.log('row', row);
+  const { error } = await supabase.schema('public').from('users').insert(row);
   if (error) {
     console.warn('Supabase upsert user error', error);
     return false;
