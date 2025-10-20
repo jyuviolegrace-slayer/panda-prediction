@@ -19,12 +19,12 @@ create table if not exists public.predictions (
   comments jsonb default '[]'::jsonb,
   options jsonb default '[]'::jsonb,
   duration integer not null default 0, -- milliseconds
-  createdAt timestamptz not null default now(),
+  created_at timestamptz not null default now(),
   author jsonb,
-  topVoters jsonb default '[]'::jsonb
+  top_voters jsonb default '[]'::jsonb
 );
 
-create index if not exists predictions_createdAt_idx on public.predictions ("createdAt");
+create index if not exists predictions_createdAt_idx on public.predictions ("created_at");
 
 -- Users (for future Auth integration)
 create table if not exists public.users (
