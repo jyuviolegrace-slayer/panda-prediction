@@ -40,7 +40,7 @@ export type Prediction = {
   comments: Comment[];
   options: PredictionOption[];
   duration: number; // milliseconds remaining
-  createdAt: number; // epoch ms
+  createdAt: string; // ISO string
   author: {
     username: string;
     avatar: string;
@@ -120,7 +120,7 @@ function initialPredictions(): Prediction[] {
         { id: 'o2', label: 'No', votes: 53 },
       ],
       duration: 1000 * 60 * 60 * 36, // 36 hours
-      createdAt: now() - 1000 * 60 * 60 * 12, // created 12h ago
+      createdAt: new Date(now() - 1000 * 60 * 60 * 12).toISOString(), // created 12h ago
       author: baseAuthor,
       topVoters: [{ avatar: randomAvatar(1) }, { avatar: randomAvatar(2) }, { avatar: randomAvatar(3) }],
     },
@@ -137,7 +137,7 @@ function initialPredictions(): Prediction[] {
         { id: 'o2', label: 'No', votes: 55 },
       ],
       duration: 1000 * 60 * 60 * 24, // 24h
-      createdAt: now() - 1000 * 60 * 30, // 30m ago
+      createdAt: new Date(now() - 1000 * 60 * 30).toISOString(), // 30m ago
       author: {
         username: 'dev_guru',
         avatar: randomAvatar(14),

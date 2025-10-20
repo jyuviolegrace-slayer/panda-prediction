@@ -44,7 +44,7 @@ export default function CreateVoteScreen() {
       comments: [],
       options: options.map((label, idx) => ({ id: `o${idx + 1}`, label, image: optionImages[idx] || undefined, votes: 0 })),
       duration: durationMs,
-      createdAt: Date.now(),
+      createdAt: new Date().toISOString(),
       author: user
         ? { username: user.username, avatar: user.avatar, twitter: user.twitter }
         : { username: 'anon', avatar: 'https://i.pravatar.cc/150?img=66', twitter: '@anon' },

@@ -19,19 +19,15 @@ function getEnv(name: string): string | undefined {
   return undefined;
 }
 
-const SUPABASE_URL =
-  getEnv('YOUR_REACT_NATIVE_SUPABASE_URL') ||
-  getEnv('REACT_NATIVE_SUPABASE_URL') ||
-  getEnv('SUPABASE_URL');
-const SUPABASE_ANON_KEY =
-  getEnv('REACT_NATIVE_SUPABASE_ANON_KEY') ||
-  getEnv('SUPABASE_ANON_KEY');
-
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY; //getEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY') || getEnv('SUPABASE_ANON_KEY');
+console.log('Supabase config HHHHHH', SUPABASE_URL, SUPABASE_ANON_KEY);
 export const hasSupabaseConfig = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 let client: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient | null {
+  console.log('Supabase config', hasSupabaseConfig, SUPABASE_URL, SUPABASE_ANON_KEY);
   if (!hasSupabaseConfig) return null;
   if (!client) {
     client = createClient(SUPABASE_URL as string, SUPABASE_ANON_KEY as string, {
@@ -47,7 +43,10 @@ export function getSupabase(): SupabaseClient | null {
 }
 
 // Media upload helpers (Supabase Storage)
-export async function pickAndUploadImage(bucket: string, pathPrefix: string): Promise<string | null> {
+export async function pickAndUploadImage(
+  bucket: string,
+  pathPrefix: string
+): Promise<string | null> {
   const supabase = getSupabase();
   // Always allow picking, even if Supabase is not configured
   const result = await ImagePicker.launchImageLibraryAsync({
@@ -77,7 +76,11 @@ export async function pickAndUploadImage(bucket: string, pathPrefix: string): Pr
   return data.publicUrl ?? null;
 }
 
-export async function uploadImageFromUri(bucket: string, pathPrefix: string, uri: string): Promise<string | null> {
+export async function uploadImageFromUri(
+  bucket: string,
+  pathPrefix: string,
+  uri: string
+): Promise<string | null> {
   const supabase = getSupabase();
   if (!supabase) return uri;
   const fileExt = uri.split('.').pop() || 'jpg';
