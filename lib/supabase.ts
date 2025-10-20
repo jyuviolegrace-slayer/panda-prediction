@@ -50,9 +50,11 @@ export async function pickAndUploadImage(
   const supabase = getSupabase();
   // Always allow picking, even if Supabase is not configured
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    // Expo SDK 54 / expo-image-picker@15 expects an array of media types
+    // Using 'as any' keeps compatibility across minor API changes
+    mediaTypes: ['images'] as any,
     quality: 0.8,
-  });
+  } as any);
   if (result.canceled) return null;
   const asset = result.assets[0];
 
