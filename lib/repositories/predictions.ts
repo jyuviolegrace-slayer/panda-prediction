@@ -19,8 +19,9 @@ function fromJsonOr<T>(val: Json | null, fallback: T): T {
   return val as unknown as T;
 }
 
-function mapAppToRow(p: Prediction): PredictionsInsert {
+function mapAppToRow(p: Prediction, includeId: boolean): PredictionsInsert {
   return {
+    id: includeId ? (p.id as any) : undefined,
     title: p.title,
     thumbnail: p.thumbnail ?? null,
     votes: p.votes,
@@ -36,14 +37,13 @@ function mapAppToRow(p: Prediction): PredictionsInsert {
 
 // Remote (Supabase)
 export async function getAllPredictionsRemote(): Promise<Prediction[] | null> {
-  console.log('getAllPredictionsRemote Supabase config', hasSupabaseConfig);
   if (!hasSupabaseConfig) return null;
   const supabase = getSupabase();
   if (!supabase) return null;
   const { data, error } = await supabase
     .from('predictions')
     .select('*')
-    .order('createdAt', { ascending: false });
+    .order('created_at', { ascending: false });
   if (error) {
     console.warn('Supabase fetch error', error);
     return null;
@@ -71,7 +71,7 @@ export async function insertPredictionRemote(item: Prediction): Promise<boolean>
   if (!hasSupabaseConfig) return false;
   const supabase = getSupabase();
   if (!supabase) return false;
-  const { error } = await supabase.from('predictions').insert(mapAppToRow(item));
+  const { error } = await supabase.from('predictions').insert(mapAppToRow(item, false));
   if (error) {
     console.warn('Supabase insert error', error);
     return false;
@@ -83,7 +83,7 @@ export async function upsertPredictionRemote(item: Prediction): Promise<boolean>
   if (!hasSupabaseConfig) return false;
   const supabase = getSupabase();
   if (!supabase) return false;
-  const { error } = await supabase.from('predictions').upsert(mapAppToRow(item));
+  const { error } = await supabase.from('predictions').upsert(mapAppToRow(item, true));
   if (error) {
     console.warn('Supabase upsert error', error);
     return false;

@@ -5,7 +5,7 @@ import {
   insertPredictionRemote,
   upsertPredictionRemote,
 } from '@/lib/repositories/predictions';
-import { upsertUserRemote } from '@/lib/repositories/users';
+import { upsertUserRemote, getLeaderboardUsersRemote } from '@/lib/repositories/users';
 import {
   usePrivy,
   useLoginWithOAuth,
@@ -93,98 +93,18 @@ export type Store = {
 const StoreContext = createContext<Store | undefined>(undefined);
 
 function randomAvatar(seed: number) {
-  const n = (seed % 70) + 1;
-  return `https://i.pravatar.cc/150?img=${n}`;
+  const avatarIndex = (seed % 70) + 1;
+  return `https://i.pravatar.cc/150?img=${avatarIndex}`;
 }
 
-function now() {
-  return Date.now();
-}
 
-function initialPredictions(): Prediction[] {
-  const baseAuthor = {
-    username: 'crypto_panda',
-    avatar: randomAvatar(5),
-    twitter: '@crypto_panda',
-  };
-  return [
-    {
-      id: '1',
-      title: 'Will BTC hit $75k by end of week?',
-      thumbnail:
-        'https://images.unsplash.com/photo-1621416894569-0e2e6b2b9b1f?q=80&w=1400&auto=format&fit=crop',
-      votes: 123,
-      pool: 250.5,
-      comments: [
-        {
-          id: 'c1',
-          user: { username: 'satoshi', avatar: randomAvatar(10) },
-          text: "I'm bullish!",
-          timestamp: now() - 1000 * 60 * 60 * 2,
-        },
-        {
-          id: 'c2',
-          user: { username: 'bear', avatar: randomAvatar(22) },
-          text: 'Too much resistance...',
-          timestamp: now() - 1000 * 60 * 45,
-        },
-      ],
-      options: [
-        { id: 'o1', label: 'Yes', votes: 70 },
-        { id: 'o2', label: 'No', votes: 53 },
-      ],
-      duration: 1000 * 60 * 60 * 36, // 36 hours
-      createdAt: new Date(now() - 1000 * 60 * 60 * 12).toISOString(), // created 12h ago
-      author: baseAuthor,
-      topVoters: [
-        { avatar: randomAvatar(1) },
-        { avatar: randomAvatar(2) },
-        { avatar: randomAvatar(3) },
-      ],
-    },
-    {
-      id: '2',
-      title: 'Will ETH gas average < 20 gwei tomorrow?',
-      thumbnail:
-        'https://images.unsplash.com/photo-1640340434850-820bdfc9b6bf?q=80&w=1400&auto=format&fit=crop',
-      votes: 89,
-      pool: 110.2,
-      comments: [],
-      options: [
-        { id: 'o1', label: 'Yes', votes: 34 },
-        { id: 'o2', label: 'No', votes: 55 },
-      ],
-      duration: 1000 * 60 * 60 * 24, // 24h
-      createdAt: new Date(now() - 1000 * 60 * 30).toISOString(), // 30m ago
-      author: {
-        username: 'dev_guru',
-        avatar: randomAvatar(14),
-        twitter: '@dev_guru',
-      },
-      topVoters: [{ avatar: randomAvatar(4) }, { avatar: randomAvatar(5) }],
-    },
-  ];
-}
 
-function initialLeaderboard(): Store['leaderboard'] {
-  const make = (offset: number) =>
-    Array.from({ length: 20 }).map((_, i) => ({
-      id: `${offset}-${i}`,
-      username: `user_${offset}_${i + 1}`,
-      avatar: randomAvatar(offset * 7 + i),
-      score: Math.floor(Math.random() * 1000 + (20 - i) * 50),
-    }));
-  return {
-    today: make(1).sort((a, b) => b.score - a.score),
-    week: make(2).sort((a, b) => b.score - a.score),
-    all: make(3).sort((a, b) => b.score - a.score),
-  };
-}
+
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
-  const [leaderboard] = useState(initialLeaderboard());
+  const [leaderboard, setLeaderboard] = useState<Store['leaderboard']>({ today: [], week: [], all: [] });
 
   const { user: privyUser, isReady, logout: privyLogout } = usePrivy();
 
@@ -192,22 +112,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     onError: (err: any) => {
       console.log('OAuth error', err);
     },
-    onSuccess: (user) => {
-      console.log('OAuth success', user);
-      const social = user?.linked_accounts || [];
-      const tw = social.find((s) => s.type === 'twitch_oauth');
+    onSuccess: (authUser) => {
+      console.log('OAuth success', authUser);
+      const accounts = (authUser as any)?.linked_accounts || (authUser as any)?.linkedAccounts || [];
+      const tw = accounts.find((s: any) => String(s?.type || s?.platform || '').includes('twitter'));
 
-      const twitter = (() => {
+      const twitterHandle = (() => {
         try {
           if (tw?.username) return `@${tw.username}`;
+          if (tw?.handle) return `@${tw.handle}`;
           return '@twitter';
         } catch {
           return '@twitter';
         }
       })();
-      const avatar = (() => {
+      const avatarUrl = (() => {
         try {
-          // @ts-expect-error
           return tw?.profilePictureUrl || tw?.avatarUrl || randomAvatar(9);
         } catch {
           return randomAvatar(9);
@@ -215,11 +135,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       })();
 
       const mapped: User = {
-        // @ts-expect-error
-        id: String(user?.id || user?._id || Math.random().toString(36).slice(2, 9)),
-        username: tw?.username || 'Panda',
-        twitter,
-        avatar,
+        id: String((authUser as any)?.id || (authUser as any)?._id || Math.random().toString(36).slice(2, 9)),
+        username: (tw?.username || (authUser as any)?.displayName || (authUser as any)?.nickname || 'Panda') as string,
+        twitter: twitterHandle,
+        avatar: avatarUrl,
         stats: { votes: 0, accuracy: 0, winnings: 0 },
       };
 
@@ -231,23 +150,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     onError: (err: any) => {
       console.log('OAuth error', err);
     },
-    onLoginSuccess: (user) => {
-      console.log('Login success', user);
+    onLoginSuccess: (authUser) => {
+      console.log('Login success', authUser);
 
-      const social = user?.linked_accounts || [];
-      const tw = social.find((s) => s.type === 'twitch_oauth');
+      const accounts = (authUser as any)?.linked_accounts || (authUser as any)?.linkedAccounts || [];
+      const tw = accounts.find((s: any) => String(s?.type || s?.platform || '').includes('twitter'));
 
-      const twitter = (() => {
+      const twitterHandle = (() => {
         try {
           if (tw?.username) return `@${tw.username}`;
+          if (tw?.handle) return `@${tw.handle}`;
           return '@twitter';
         } catch {
           return '@twitter';
         }
       })();
-      const avatar = (() => {
+      const avatarUrl = (() => {
         try {
-          // @ts-expect-error
           return tw?.profilePictureUrl || tw?.avatarUrl || randomAvatar(9);
         } catch {
           return randomAvatar(9);
@@ -255,11 +174,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       })();
 
       const mapped: User = {
-        // @ts-expect-error
-        id: String(user?.id || user?._id || Math.random().toString(36).slice(2, 9)),
-        username: tw?.username || 'Panda',
-        twitter,
-        avatar,
+        id: String((authUser as any)?.id || (authUser as any)?._id || Math.random().toString(36).slice(2, 9)),
+        username: (tw?.username || (authUser as any)?.displayName || (authUser as any)?.nickname || 'Panda') as string,
+        twitter: twitterHandle,
+        avatar: avatarUrl,
         stats: { votes: 0, accuracy: 0, winnings: 0 },
       };
 
@@ -268,20 +186,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    async function load() {
+    (async () => {
       try {
         const remote = await getAllPredictionsRemote();
-        if (remote && remote.length > 0) {
-          setPredictions(remote);
-          return;
-        }
-      } catch (e) {
-        // ignore
+        setPredictions(remote ?? []);
+      } catch {
+        setPredictions([]);
       }
-      const seed = initialPredictions();
-      setPredictions(seed);
-    }
-    load();
+      try {
+        const lb = await getLeaderboardUsersRemote();
+        if (lb) {
+          setLeaderboard({ today: lb, week: lb, all: lb });
+        }
+      } catch {}
+    })();
   }, []);
 
   // When Privy is ready and has a user, sync to our store and route to home
