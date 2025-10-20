@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FlatList, Image, Modal, Pressable, ScrollView, View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { useStore } from '@/lib/store';
+import { useStore, type Comment } from '@/lib/store';
 import { Text } from '@/components/ui/text';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +29,7 @@ export default function PredictionDetail() {
 
   if (!prediction) return null;
 
-  const endTime = prediction.createdAt + prediction.duration;
+  const endTime = new Date(prediction.createdAt).getTime() + prediction.duration;
   const remaining = useCountdown(endTime);
 
   const [commentText, setCommentText] = React.useState('');
@@ -37,7 +37,7 @@ export default function PredictionDetail() {
     if (!prediction) return;
     const text = commentText.trim();
     if (!text) return;
-    const newComment = {
+    const newComment: Comment = {
       id: Math.random().toString(36).slice(2, 9),
       user: {
         username: user?.username || 'anon',
@@ -45,8 +45,8 @@ export default function PredictionDetail() {
       },
       text,
       timestamp: Date.now(),
-    } as const;
-    addComment(prediction.id, newComment as any);
+    };
+    addComment(prediction.id, newComment);
     setCommentText('');
   }
 

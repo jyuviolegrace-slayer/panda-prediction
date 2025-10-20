@@ -1,0 +1,18 @@
+# Supabase CLI configuration
+# For local development you can run `supabase start` to spin up a local stack.
+# For remote environments (staging/prod), use `supabase link --project-ref <project-ref>`
+# and then `supabase db push` to apply migrations from supabase/migrations.
+
+project_id = "local-dev"
+
+auth.external.phone.enabled = false
+
+[api]
+port = 54321
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+port = 54323

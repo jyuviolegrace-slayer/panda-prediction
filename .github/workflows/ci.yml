@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase local development setup
+        run: supabase start
+
+      - name: Verify generated types are checked in
+        run: |
+          supabase gen types typescript --local > types/supabase.gen.ts
+          if ! diff -q types/supabase.gen.ts types/supabase.ts >/dev/null; then
+            echo "Detected mismatch between generated types and checked-in types (types/supabase.ts). Regenerate types and commit."
+            diff -u types/supabase.ts types/supabase.gen.ts || true
+            exit 1
+          fi
