@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { getAllPredictionsRemote, insertPredictionRemote, upsertPredictionRemote } from '@/lib/repositories/predictions';
+import { upsertUserRemote } from '@/lib/repositories/users';
 import { usePrivy, useLoginWithOAuth, type LoginWithOAuthInput } from '@privy-io/expo';
 
 export type User = {
@@ -224,6 +225,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         stats: { votes: 0, accuracy: 0, winnings: 0 },
       };
       setUser(mapped);
+      // Persist user profile to Supabase for analytics/relations
+      upsertUserRemote(mapped).catch(() => {});
       router.replace('/(tabs)/home');
     }
   }, [isReady, privyUser]);
