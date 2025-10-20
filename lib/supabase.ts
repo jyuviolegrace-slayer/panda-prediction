@@ -1,6 +1,7 @@
 import 'react-native-url-polyfill/auto';
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import * as ImagePicker from 'expo-image-picker';
 
 function getEnv(name: string): string | undefined {
@@ -24,13 +25,13 @@ const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY; //getEnv('E
 console.log('Supabase config HHHHHH', SUPABASE_URL, SUPABASE_ANON_KEY);
 export const hasSupabaseConfig = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
-let client: SupabaseClient | null = null;
+let client: SupabaseClient<Database> | null = null;
 
-export function getSupabase(): SupabaseClient | null {
+export function getSupabase(): SupabaseClient<Database> | null {
   console.log('Supabase config', hasSupabaseConfig, SUPABASE_URL, SUPABASE_ANON_KEY);
   if (!hasSupabaseConfig) return null;
   if (!client) {
-    client = createClient(SUPABASE_URL as string, SUPABASE_ANON_KEY as string, {
+    client = createClient<Database>(SUPABASE_URL as string, SUPABASE_ANON_KEY as string, {
       auth: {
         // No auth required for MVP; enable session later when Auth is added
         persistSession: false,

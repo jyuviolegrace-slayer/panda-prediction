@@ -43,3 +43,9 @@ app.db
 
 expo-env.d.ts
 # @end expo-cli
+
+# Supabase local dev artifacts
+supabase/.temp/
+supabase/data/
+supabase/docker/
+supabase/.branches/

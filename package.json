@@ -7,7 +7,15 @@
     "android": "expo start -c --android",
     "ios": "expo start -c --ios",
     "web": "expo start -c --web",
-    "clean": "rm -rf .expo node_modules"
+    "clean": "rm -rf .expo node_modules",
+    "supabase:login": "supabase login",
+    "supabase:link:staging": "supabase link --project-ref $SUPABASE_STAGING_PROJECT_ID",
+    "supabase:link:prod": "supabase link --project-ref $SUPABASE_PROD_PROJECT_ID",
+    "db:push:staging": "supabase link --project-ref $SUPABASE_STAGING_PROJECT_ID && supabase db push",
+    "db:push:prod": "supabase link --project-ref $SUPABASE_PROD_PROJECT_ID && supabase db push",
+    "types:gen:local": "supabase gen types typescript --local > types/supabase.ts",
+    "types:gen:staging": "supabase gen types typescript --project-id $SUPABASE_STAGING_PROJECT_ID > types/supabase.ts",
+    "types:gen:prod": "supabase gen types typescript --project-id $SUPABASE_PROD_PROJECT_ID > types/supabase.ts"
   },
   "dependencies": {
     "@react-navigation/native": "^7.0.0",
