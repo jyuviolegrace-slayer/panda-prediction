@@ -6,6 +6,7 @@ import {
   upsertPredictionRemote,
 } from '@/lib/repositories/predictions';
 import { upsertUserRemote, getLeaderboardUsersRemote } from '@/lib/repositories/users';
+import { insertVoteRemote } from '@/lib/repositories/votes';
 import {
   usePrivy,
   useLoginWithOAuth,
@@ -284,8 +285,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         return updated;
       })
     );
-    if (updated) upsertPredictionRemote(updated).catch(() => {});
-  }, []);
+    if (updated) {
+      upsertPredictionRemote(updated).catch(() => {});
+      try {
+        const optIndex = updated.options.findIndex((o) => o.id === optionId);
+        if (optIndex >= 0 && user?.id) {
+          insertVoteRemote({ predictionId, userId: user.id, optionIndex: optIndex, amount }).catch(() => {});
+        }
+      } catch {}
+      if (user) {
+        setUser({ ...user, stats: { ...user.stats, votes: (user.stats.votes || 0) + 1 } });
+      }
+    }
+  }, [setUser, user]);
 
   const addComment = useCallback((predictionId: string, comment: Comment) => {
     let updated: Prediction | null = null;

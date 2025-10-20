@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { FlatList, Image, Modal, Pressable, ScrollView, View } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, router } from 'expo-router';
 import { useStore, type Comment } from '@/lib/store';
 import { Text } from '@/components/ui/text';
 import { Card } from '@/components/ui/card';
@@ -97,7 +97,7 @@ export default function PredictionDetail() {
 
           <Text variant="h4" className="mb-2">Comments</Text>
           <FlatList
-            data={prediction.comments}
+            data={prediction.comments.slice(0, 3)}
             keyExtractor={c => c.id}
             scrollEnabled={false}
             renderItem={({ item }) => (
@@ -110,6 +110,11 @@ export default function PredictionDetail() {
               </View>
             )}
           />
+          {prediction.comments.length > 3 ? (
+            <Button variant="ghost" onPress={() => router.push(`/prediction/${prediction.id}/comments`)}>
+              <Text>View all comments ({prediction.comments.length})</Text>
+            </Button>
+          ) : null}
           <View className="mt-3 flex-row items-center gap-2">
             <CardInput
               className="flex-1"
