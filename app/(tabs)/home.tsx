@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FlatList, Image, Pressable, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, View } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { useStore } from '@/lib/store';
 import { Avatar } from '@/components/ui/avatar';
@@ -10,29 +10,83 @@ import { Badge } from '@/components/ui/badge';
 import { Icon } from '@/components/ui/icon';
 import { PlusIcon } from 'lucide-react-native';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllPredictionsRemote } from '@/lib/repositories/predictions';
+import { getAllPredictionsRemote, getPredictionsPageRemote } from '@/lib/repositories/predictions';
+
+const PAGE_SIZE = 10;
 
 export default function HomeScreen() {
   const { predictions, user, setPredictions } = useStore();
   const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+  const [offset, setOffset] = React.useState(0);
+  const [hasMore, setHasMore] = React.useState(true);
 
   React.useEffect(() => {
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
   }, []);
 
+  React.useEffect(() => {
+    (async () => {
+      if (predictions.length === 0) {
+        await onRefresh();
+      } else {
+        setLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onRefresh = React.useCallback(async () => {
     try {
       setRefreshing(true);
-      const remote = await getAllPredictionsRemote();
-      if (remote && remote.length) {
-        setPredictions(remote);
+      const page = await getPredictionsPageRemote(PAGE_SIZE, 0);
+      if (page && page.items) {
+        setPredictions(page.items);
+        setOffset(page.items.length);
+        setHasMore(page.count == null ? page.items.length === PAGE_SIZE : (page.items.length + 0) < (page.count || 0));
+      } else {
+        // Fallback to full fetch if pagination unsupported
+        const remote = await getAllPredictionsRemote();
+        if (remote) {
+          setPredictions(remote);
+          setOffset(remote.length);
+          setHasMore(false);
+        }
       }
     } finally {
       setRefreshing(false);
     }
   }, [setPredictions]);
+
+  const loadMore = React.useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const page = await getPredictionsPageRemote(PAGE_SIZE, offset);
+      if (page && page.items && page.items.length > 0) {
+        // Dedup by id
+        const existingIds = new Set(predictions.map(p => p.id));
+        const merged = [...predictions];
+        for (const it of page.items) {
+          if (!existingIds.has(it.id)) merged.push(it);
+        }
+        setPredictions(merged);
+        setOffset(offset + page.items.length);
+        const totalCount = page.count ?? null;
+        if (totalCount != null) {
+          setHasMore(merged.length < totalCount);
+        } else {
+          setHasMore(page.items.length === PAGE_SIZE);
+        }
+      } else {
+        setHasMore(false);
+      }
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [hasMore, loadingMore, offset, predictions, setPredictions]);
 
   return (
     <>
@@ -71,6 +125,13 @@ export default function HomeScreen() {
             renderItem={({ item }) => <PredictionCard item={item} />}
             refreshing={refreshing}
             onRefresh={onRefresh}
+            onEndReachedThreshold={0.5}
+            onEndReached={loadMore}
+            ListFooterComponent={loadingMore ? (
+              <View className="py-4 items-center">
+                <ActivityIndicator />
+              </View>
+            ) : null}
           />
         )}
       </View>

@@ -74,3 +74,27 @@ export async function getLeaderboardUsersRemote(): Promise<LeaderboardEntry[] | 
     score: Number(r.winnings_amount ?? 0),
   }));
 }
+
+export async function getUserStatsRemote(
+  username: string
+): Promise<{ votes: number; accuracy: number; winnings: number } | null> {
+  if (!hasSupabaseConfig) return null;
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('username', username)
+    .limit(1);
+  if (error) {
+    console.warn('Supabase fetch user stats error', error);
+    return null;
+  }
+  const row = (data?.[0] as UsersRow) || null;
+  if (!row) return null;
+  return {
+    votes: row.votes_count ?? 0,
+    accuracy: Number(row.accuracy_percentage ?? 0),
+    winnings: Number(row.winnings_amount ?? 0),
+  };
+}

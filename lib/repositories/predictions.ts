@@ -35,6 +35,23 @@ function mapAppToRow(p: Prediction, includeId: boolean): PredictionsInsert {
   };
 }
 
+function mapRowToPrediction(r: PredictionsRow): Prediction {
+  const createdAtIso = r.created_at;
+  return {
+    id: r.id,
+    title: r.title,
+    thumbnail: r.thumbnail ?? null,
+    votes: r.votes ?? 0,
+    pool: r.pool ?? 0,
+    comments: fromJsonOr(r.comments, [] as Prediction['comments']),
+    options: fromJsonOr(r.options, [] as Prediction['options']),
+    duration: r.duration,
+    createdAt: createdAtIso,
+    author: fromJsonOr(r.author, { username: '', avatar: '', twitter: '' } as Prediction['author']),
+    topVoters: fromJsonOr(r.top_voters, [] as Prediction['topVoters']),
+  } satisfies Prediction;
+}
+
 // Remote (Supabase)
 export async function getAllPredictionsRemote(): Promise<Prediction[] | null> {
   if (!hasSupabaseConfig) return null;
@@ -49,22 +66,27 @@ export async function getAllPredictionsRemote(): Promise<Prediction[] | null> {
     return null;
   }
   const rows: PredictionsRow[] = (data ?? []) as PredictionsRow[];
-  return rows.map((r) => {
-    const createdAtIso = r.created_at;
-    return {
-      id: r.id,
-      title: r.title,
-      thumbnail: r.thumbnail ?? null,
-      votes: r.votes ?? 0,
-      pool: r.pool ?? 0,
-      comments: fromJsonOr(r.comments, [] as Prediction['comments']),
-      options: fromJsonOr(r.options, [] as Prediction['options']),
-      duration: r.duration,
-      createdAt: createdAtIso,
-      author: fromJsonOr(r.author, { username: '', avatar: '', twitter: '' } as Prediction['author']),
-      topVoters: fromJsonOr(r.top_voters, [] as Prediction['topVoters']),
-    } satisfies Prediction;
-  });
+  return rows.map(mapRowToPrediction);
+}
+
+export async function getPredictionsPageRemote(
+  limit = 10,
+  offset = 0
+): Promise<{ items: Prediction[]; count: number | null } | null> {
+  if (!hasSupabaseConfig) return null;
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error, count } = await supabase
+    .from('predictions')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+  if (error) {
+    console.warn('Supabase paginated fetch error', error);
+    return null;
+  }
+  const rows: PredictionsRow[] = (data ?? []) as PredictionsRow[];
+  return { items: rows.map(mapRowToPrediction), count: count ?? null };
 }
 
 export async function insertPredictionRemote(item: Prediction): Promise<boolean> {

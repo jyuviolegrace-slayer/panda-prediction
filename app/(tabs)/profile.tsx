@@ -5,9 +5,22 @@ import { useStore } from '@/lib/store';
 import { Text } from '@/components/ui/text';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { getUserStatsRemote } from '@/lib/repositories/users';
 
 export default function ProfileScreen() {
-  const { user, logout } = useStore();
+  const { user, logout, setUser } = useStore();
+
+  React.useEffect(() => {
+    (async () => {
+      if (!user) return;
+      try {
+        const stats = await getUserStatsRemote(user.username);
+        if (stats) {
+          setUser({ ...user, stats });
+        }
+      } catch {}
+    })();
+  }, [setUser, user]);
 
   if (!user) return null;
 
