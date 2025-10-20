@@ -28,9 +28,9 @@ function mapAppToRow(p: Prediction): PredictionsInsert {
     comments: (p.comments ?? []) as unknown as Json,
     options: (p.options ?? []) as unknown as Json,
     duration: p.duration,
-    createdAt: p.createdAt,
+    created_at: p.createdAt,
     author: (p.author ?? null) as unknown as Json,
-    topVoters: (p.topVoters ?? []) as unknown as Json,
+    top_voters: (p.topVoters ?? []) as unknown as Json,
   };
 }
 
@@ -50,7 +50,7 @@ export async function getAllPredictionsRemote(): Promise<Prediction[] | null> {
   }
   const rows: PredictionsRow[] = (data ?? []) as PredictionsRow[];
   return rows.map((r) => {
-    const createdAtIso = r.createdAt;
+    const createdAtIso = r.created_at;
     return {
       id: r.id,
       title: r.title,
@@ -62,7 +62,7 @@ export async function getAllPredictionsRemote(): Promise<Prediction[] | null> {
       duration: r.duration,
       createdAt: createdAtIso,
       author: fromJsonOr(r.author, { username: '', avatar: '', twitter: '' } as Prediction['author']),
-      topVoters: fromJsonOr(r.topVoters, [] as Prediction['topVoters']),
+      topVoters: fromJsonOr(r.top_voters, [] as Prediction['topVoters']),
     } satisfies Prediction;
   });
 }

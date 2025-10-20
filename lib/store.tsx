@@ -1,6 +1,18 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
-import { getAllPredictionsRemote, insertPredictionRemote, upsertPredictionRemote } from '@/lib/repositories/predictions';
+import {
+  getAllPredictionsRemote,
+  insertPredictionRemote,
+  upsertPredictionRemote,
+} from '@/lib/repositories/predictions';
+import { upsertUserRemote } from '@/lib/repositories/users';
+import {
+  usePrivy,
+  useLoginWithOAuth,
+  useLoginWithEmail,
+  type LoginWithOAuthInput,
+  type PrivyUser,
+} from '@privy-io/expo';
 
 export type User = {
   id: string;
@@ -73,12 +85,14 @@ export type Store = {
     week: LeaderboardEntry[];
     all: LeaderboardEntry[];
   };
+
+  sendCode: (args: { email: string }) => Promise<any>;
+  loginWithCode: (args: { email: string; code: string }) => Promise<PrivyUser | undefined>;
 };
 
 const StoreContext = createContext<Store | undefined>(undefined);
 
 function randomAvatar(seed: number) {
-  // Use pravatar as placeholder avatars
   const n = (seed % 70) + 1;
   return `https://i.pravatar.cc/150?img=${n}`;
 }
@@ -122,7 +136,11 @@ function initialPredictions(): Prediction[] {
       duration: 1000 * 60 * 60 * 36, // 36 hours
       createdAt: new Date(now() - 1000 * 60 * 60 * 12).toISOString(), // created 12h ago
       author: baseAuthor,
-      topVoters: [{ avatar: randomAvatar(1) }, { avatar: randomAvatar(2) }, { avatar: randomAvatar(3) }],
+      topVoters: [
+        { avatar: randomAvatar(1) },
+        { avatar: randomAvatar(2) },
+        { avatar: randomAvatar(3) },
+      ],
     },
     {
       id: '2',
@@ -168,6 +186,87 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [leaderboard] = useState(initialLeaderboard());
 
+  const { user: privyUser, isReady, logout: privyLogout } = usePrivy();
+
+  const oauth = useLoginWithOAuth({
+    onError: (err: any) => {
+      console.log('OAuth error', err);
+    },
+    onSuccess: (user) => {
+      console.log('OAuth success', user);
+      const social = user?.linked_accounts || [];
+      const tw = social.find((s) => s.type === 'twitch_oauth');
+
+      const twitter = (() => {
+        try {
+          if (tw?.username) return `@${tw.username}`;
+          return '@twitter';
+        } catch {
+          return '@twitter';
+        }
+      })();
+      const avatar = (() => {
+        try {
+          // @ts-expect-error
+          return tw?.profilePictureUrl || tw?.avatarUrl || randomAvatar(9);
+        } catch {
+          return randomAvatar(9);
+        }
+      })();
+
+      const mapped: User = {
+        // @ts-expect-error
+        id: String(user?.id || user?._id || Math.random().toString(36).slice(2, 9)),
+        username: tw?.username || 'Panda',
+        twitter,
+        avatar,
+        stats: { votes: 0, accuracy: 0, winnings: 0 },
+      };
+
+      upsertUserRemote(mapped).catch((e) => console.log('Error upserting user', e));
+    },
+  });
+
+  const { loginWithCode, sendCode } = useLoginWithEmail({
+    onError: (err: any) => {
+      console.log('OAuth error', err);
+    },
+    onLoginSuccess: (user) => {
+      console.log('Login success', user);
+
+      const social = user?.linked_accounts || [];
+      const tw = social.find((s) => s.type === 'twitch_oauth');
+
+      const twitter = (() => {
+        try {
+          if (tw?.username) return `@${tw.username}`;
+          return '@twitter';
+        } catch {
+          return '@twitter';
+        }
+      })();
+      const avatar = (() => {
+        try {
+          // @ts-expect-error
+          return tw?.profilePictureUrl || tw?.avatarUrl || randomAvatar(9);
+        } catch {
+          return randomAvatar(9);
+        }
+      })();
+
+      const mapped: User = {
+        // @ts-expect-error
+        id: String(user?.id || user?._id || Math.random().toString(36).slice(2, 9)),
+        username: tw?.username || 'Panda',
+        twitter,
+        avatar,
+        stats: { votes: 0, accuracy: 0, winnings: 0 },
+      };
+
+      upsertUserRemote(mapped).catch((e) => console.log('Error upserting user', e));
+    },
+  });
+
   useEffect(() => {
     async function load() {
       try {
@@ -185,56 +284,100 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     load();
   }, []);
 
+  // When Privy is ready and has a user, sync to our store and route to home
+  useEffect(() => {
+    if (!isReady) return;
+    if (privyUser) {
+      const twitter = (() => {
+        try {
+          const social =
+            (privyUser as any)?.socialAccounts || (privyUser as any)?.linkedAccounts || [];
+          const tw = social.find((s: any) => (s?.platform || s?.type) === 'twitter');
+          if (tw?.username) return `@${tw.username}`;
+          if (tw?.handle) return `@${tw.handle}`;
+          return '@twitter';
+        } catch {
+          return '@twitter';
+        }
+      })();
+      const avatar = (() => {
+        try {
+          const social =
+            (privyUser as any)?.socialAccounts || (privyUser as any)?.linkedAccounts || [];
+          const tw = social.find((s: any) => (s?.platform || s?.type) === 'twitter');
+          return tw?.profilePictureUrl || tw?.avatarUrl || randomAvatar(9);
+        } catch {
+          return randomAvatar(9);
+        }
+      })();
+      const mapped: User = {
+        id: String(
+          (privyUser as any)?.id ||
+            (privyUser as any)?._id ||
+            Math.random().toString(36).slice(2, 9)
+        ),
+        username: (privyUser as any)?.displayName || (privyUser as any)?.nickname || 'Panda',
+        twitter,
+        avatar,
+        stats: { votes: 0, accuracy: 0, winnings: 0 },
+      };
+      setUser(mapped);
+      // Persist user profile to Supabase for analytics/relations
+      // upsertUserRemote(mapped).catch(() => {});
+      router.replace('/(tabs)/home');
+    }
+  }, [isReady, privyUser]);
+
   const loginWithTwitter = useCallback(() => {
-    const mock: User = {
-      id: 'u1',
-      username: 'Panda',
-      twitter: '@panda',
-      avatar: randomAvatar(9),
-      stats: { votes: 42, accuracy: 74, winnings: 128.5 },
-    };
-    setUser(mock);
-    router.replace('/(tabs)/home');
-  }, []);
+    try {
+      oauth.login({ provider: 'twitter' } as LoginWithOAuthInput);
+    } catch (e) {
+      console.log('Twitter login error', e);
+    }
+  }, [oauth]);
 
   const logout = useCallback(() => {
+    try {
+      privyLogout?.();
+    } catch {}
     setUser(null);
     router.replace('/(auth)/landing');
-  }, []);
+  }, [privyLogout]);
 
   const addPrediction = useCallback((p: Prediction) => {
-    setPredictions(prev => [p, ...prev]);
+    setPredictions((prev) => [p, ...prev]);
     insertPredictionRemote(p).catch(() => {});
   }, []);
 
-  const voteOnPrediction = useCallback(
-    (predictionId: string, optionId: string, amount: number) => {
-      let updated: Prediction | null = null;
-      setPredictions(prev =>
-        prev.map(p => {
-          if (p.id !== predictionId) return p;
-          const options = p.options.map(o => (o.id === optionId ? { ...o, votes: o.votes + 1 } : o));
-          updated = {
-            ...p,
-            votes: p.votes + 1,
-            pool: Math.round((p.pool + amount) * 100) / 100,
-            options,
-          };
-          return updated;
-        })
-      );
-      if (updated) upsertPredictionRemote(updated).catch(() => {});
-    },
-    []
-  );
+  const voteOnPrediction = useCallback((predictionId: string, optionId: string, amount: number) => {
+    let updated: Prediction | null = null;
+    setPredictions((prev) =>
+      prev.map((p) => {
+        if (p.id !== predictionId) return p;
+        const options = p.options.map((o) =>
+          o.id === optionId ? { ...o, votes: o.votes + 1 } : o
+        );
+        updated = {
+          ...p,
+          votes: p.votes + 1,
+          pool: Math.round((p.pool + amount) * 100) / 100,
+          options,
+        };
+        return updated;
+      })
+    );
+    if (updated) upsertPredictionRemote(updated).catch(() => {});
+  }, []);
 
   const addComment = useCallback((predictionId: string, comment: Comment) => {
     let updated: Prediction | null = null;
-    setPredictions(prev => prev.map(p => {
-      if (p.id !== predictionId) return p;
-      updated = { ...p, comments: [comment, ...p.comments] };
-      return updated;
-    }));
+    setPredictions((prev) =>
+      prev.map((p) => {
+        if (p.id !== predictionId) return p;
+        updated = { ...p, comments: [comment, ...p.comments] };
+        return updated;
+      })
+    );
     if (updated) upsertPredictionRemote(updated).catch(() => {});
   }, []);
 
@@ -250,8 +393,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       voteOnPrediction,
       addComment,
       leaderboard,
+      sendCode,
+      loginWithCode,
     }),
-    [user, loginWithTwitter, logout, predictions, addPrediction, voteOnPrediction, addComment, leaderboard]
+    [
+      user,
+      loginWithTwitter,
+      logout,
+      predictions,
+      addPrediction,
+      voteOnPrediction,
+      addComment,
+      leaderboard,
+    ]
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
