@@ -94,5 +94,18 @@
     --auth-text: 0 0% 98%;
     --auth-muted: 220 15% 75%;
     --auth-border: 230 20% 15%;
+    
+    /* Tab bar specific colors */
+    --tab-bar-background: 230 20% 8%;
+    --tab-bar-active: 220 100% 65%;
+    --tab-bar-inactive: 220 15% 50%;
+    --tab-bar-plus-bg: 220 100% 65%;
+    --tab-bar-plus-fg: 0 0% 100%;
+    
+    /* Trending card gradients */
+    --trending-gradient-1-start: 0 100% 60%;
+    --trending-gradient-1-end: 280 100% 70%;
+    --trending-gradient-2-start: 220 100% 60%;
+    --trending-gradient-2-end: 180 100% 50%;
   }
 }

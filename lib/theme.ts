@@ -52,6 +52,12 @@ export const THEME = {
     chart3: 'hsl(30 80% 55%)',
     chart4: 'hsl(280 65% 60%)',
     chart5: 'hsl(340 75% 55%)',
+    // Tab bar colors
+    tabBarBackground: 'hsl(230 20% 8%)',
+    tabBarActive: 'hsl(220 100% 65%)',
+    tabBarInactive: 'hsl(220 15% 50%)',
+    tabBarPlusBg: 'hsl(220 100% 65%)',
+    tabBarPlusFg: 'hsl(0 0% 100%)',
   },
 };
  
