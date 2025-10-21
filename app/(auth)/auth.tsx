@@ -1,12 +1,12 @@
-import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { Stack } from 'expo-router';
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { useStore } from '@/lib/store';
-import { Icon } from '@/components/ui/icon';
-import { TwitterIcon } from 'lucide-react-native';
-import { CardInput } from '@/components/ui/card-input';
+import { AuthIllustration } from '@/components/auth/auth-illustration';
+import { TwitterLoginButton } from '@/components/auth/twitter-login-button';
+import { EmailAuthSection } from '@/components/auth/email-auth-section';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 
 export default function Auth() {
   const { loginWithTwitter, sendCode, loginWithCode } = useStore();
@@ -16,6 +16,7 @@ export default function Auth() {
   const [codeSent, setCodeSent] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [twitterLoading, setTwitterLoading] = React.useState(false);
 
   async function onSendCode() {
     setError(null);
@@ -42,46 +43,79 @@ export default function Auth() {
     }
   }
 
+  async function onTwitterLogin() {
+    setTwitterLoading(true);
+    try {
+      await loginWithTwitter();
+    } catch (e: any) {
+      setError(e?.message || 'Failed to login with Twitter');
+    } finally {
+      setTwitterLoading(false);
+    }
+  }
+
   return (
     <>
-      <Stack.Screen options={{ title: 'Sign In' }} />
-      <View className="flex-1 justify-center gap-6 bg-background px-6">
-        <Text variant="h2" className="text-center">
-          Sign in with Twitter to start predicting.
-        </Text>
-        <Button className="h-12 rounded-xl" onPress={loginWithTwitter}>
-          <Icon as={TwitterIcon} size={18} />
-          <Text className="text-lg">Connect with Twitter</Text>
-        </Button>
+      <StatusBar barStyle="light-content" backgroundColor="hsl(230, 35%, 7%)" />
+      <Stack.Screen
+        options={{
+          title: 'Auth',
+          headerShown: false,
+        }}
+      />
+      <View className="bg-auth-background flex-1">
+        {/* Main content container */}
+        <View className="flex-1 justify-center px-6 py-8">
+          {/* Header */}
+          <Animated.View entering={FadeInUp.delay(200).duration(600)} className="mb-8 items-center">
+            <Text variant="h1" className="text-auth-text mb-2 text-center text-3xl font-bold">
+              Auth
+            </Text>
+            <Text className="text-auth-muted text-center text-base">
+              Choose your authentication method
+            </Text>
+          </Animated.View>
 
-        <View className="mt-6 gap-3">
-          <Text className="text-center text-muted-foreground">Or, test login with email</Text>
-          <CardInput
-            placeholder="Email"
-            inputMode="email"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-          {codeSent && (
-            <CardInput
-              placeholder="Verification Code"
-              keyboardType="number-pad"
-              value={code}
-              onChangeText={setCode}
+          {/* 3D Illustration */}
+          <Animated.View entering={FadeInUp.delay(400).duration(800)} className="mb-8">
+            <AuthIllustration />
+          </Animated.View>
+
+          {/* Authentication Options */}
+          <Animated.View entering={FadeInDown.delay(600).duration(600)} className="gap-6">
+            {/* Twitter Login */}
+            <TwitterLoginButton onPress={onTwitterLogin} loading={twitterLoading} />
+
+            {/* Divider */}
+            <View className="flex-row items-center gap-4">
+              <View className="bg-auth-border/30 h-px flex-1" />
+              <Text className="text-auth-muted text-sm">or</Text>
+              <View className="bg-auth-border/30 h-px flex-1" />
+            </View>
+
+            {/* Email Authentication */}
+            <EmailAuthSection
+              email={email}
+              code={code}
+              codeSent={codeSent}
+              loading={loading}
+              error={error}
+              onEmailChange={setEmail}
+              onCodeChange={setCode}
+              onSendCode={onSendCode}
+              onLogin={onLogin}
             />
-          )}
-          {!codeSent ? (
-            <Button variant="outline" onPress={onSendCode} disabled={loading || !email}>
-              <Text>Send Code</Text>
-            </Button>
-          ) : (
-            <Button onPress={onLogin} disabled={loading || !code}>
-              <Text>Login</Text>
-            </Button>
-          )}
-          {error && <Text className="text-center text-destructive">{error}</Text>}
+          </Animated.View>
         </View>
+
+        {/* Footer */}
+        <Animated.View entering={FadeInUp.delay(800).duration(400)} className="px-6 pb-8">
+          <Text className="text-auth-muted text-center text-xs">
+            By connecting your account, you agree to our{' '}
+            <Text className="text-auth-primary">Terms of Service</Text> and{' '}
+            <Text className="text-auth-primary">Privacy Policy</Text>
+          </Text>
+        </Animated.View>
       </View>
     </>
   );

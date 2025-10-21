@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { StoreProvider } from '@/lib/store';
 import { PrivyProvider } from '@privy-io/expo';
+import OnboardingScreen from './(auth)/onboarding';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -18,7 +19,7 @@ export default function RootLayout() {
     <ThemeProvider value={NAV_THEME.dark}>
       <StatusBar style="light" />
       <PrivyProvider
-        appId={process.env.EXPO_PUBLIC_PRIVY_APP_ID}
+        appId={process.env.EXPO_PUBLIC_PRIVY_APP_ID!}
         clientId={process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID}>
         <StoreProvider>
           <Stack

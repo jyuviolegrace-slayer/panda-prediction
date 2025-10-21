@@ -98,14 +98,14 @@ function randomAvatar(seed: number) {
   return `https://i.pravatar.cc/150?img=${avatarIndex}`;
 }
 
-
-
-
-
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
-  const [leaderboard, setLeaderboard] = useState<Store['leaderboard']>({ today: [], week: [], all: [] });
+  const [leaderboard, setLeaderboard] = useState<Store['leaderboard']>({
+    today: [],
+    week: [],
+    all: [],
+  });
 
   const { user: privyUser, isReady, logout: privyLogout } = usePrivy();
 
@@ -115,8 +115,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     },
     onSuccess: (authUser) => {
       console.log('OAuth success', authUser);
-      const accounts = (authUser as any)?.linked_accounts || (authUser as any)?.linkedAccounts || [];
-      const tw = accounts.find((s: any) => String(s?.type || s?.platform || '').includes('twitter'));
+      const accounts =
+        (authUser as any)?.linked_accounts || (authUser as any)?.linkedAccounts || [];
+      const tw = accounts.find((s: any) =>
+        String(s?.type || s?.platform || '').includes('twitter')
+      );
 
       const twitterHandle = (() => {
         try {
@@ -136,8 +139,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       })();
 
       const mapped: User = {
-        id: String((authUser as any)?.id || (authUser as any)?._id || Math.random().toString(36).slice(2, 9)),
-        username: (tw?.username || (authUser as any)?.displayName || (authUser as any)?.nickname || 'Panda') as string,
+        id: String(
+          (authUser as any)?.id || (authUser as any)?._id || Math.random().toString(36).slice(2, 9)
+        ),
+        username: (tw?.username ||
+          (authUser as any)?.displayName ||
+          (authUser as any)?.nickname ||
+          'Panda') as string,
         twitter: twitterHandle,
         avatar: avatarUrl,
         stats: { votes: 0, accuracy: 0, winnings: 0 },
@@ -154,8 +162,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     onLoginSuccess: (authUser) => {
       console.log('Login success', authUser);
 
-      const accounts = (authUser as any)?.linked_accounts || (authUser as any)?.linkedAccounts || [];
-      const tw = accounts.find((s: any) => String(s?.type || s?.platform || '').includes('twitter'));
+      const accounts =
+        (authUser as any)?.linked_accounts || (authUser as any)?.linkedAccounts || [];
+      const tw = accounts.find((s: any) =>
+        String(s?.type || s?.platform || '').includes('twitter')
+      );
 
       const twitterHandle = (() => {
         try {
@@ -175,8 +186,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       })();
 
       const mapped: User = {
-        id: String((authUser as any)?.id || (authUser as any)?._id || Math.random().toString(36).slice(2, 9)),
-        username: (tw?.username || (authUser as any)?.displayName || (authUser as any)?.nickname || 'Panda') as string,
+        id: String(
+          (authUser as any)?.id || (authUser as any)?._id || Math.random().toString(36).slice(2, 9)
+        ),
+        username: (tw?.username ||
+          (authUser as any)?.displayName ||
+          (authUser as any)?.nickname ||
+          'Panda') as string,
         twitter: twitterHandle,
         avatar: avatarUrl,
         stats: { votes: 0, accuracy: 0, winnings: 0 },
@@ -268,36 +284,44 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     insertPredictionRemote(p).catch(() => {});
   }, []);
 
-  const voteOnPrediction = useCallback((predictionId: string, optionId: string, amount: number) => {
-    let updated: Prediction | null = null;
-    setPredictions((prev) =>
-      prev.map((p) => {
-        if (p.id !== predictionId) return p;
-        const options = p.options.map((o) =>
-          o.id === optionId ? { ...o, votes: o.votes + 1 } : o
-        );
-        updated = {
-          ...p,
-          votes: p.votes + 1,
-          pool: Math.round((p.pool + amount) * 100) / 100,
-          options,
-        };
-        return updated;
-      })
-    );
-    if (updated) {
-      upsertPredictionRemote(updated).catch(() => {});
-      try {
-        const optIndex = updated.options.findIndex((o) => o.id === optionId);
-        if (optIndex >= 0 && user?.id) {
-          insertVoteRemote({ predictionId, userId: user.id, optionIndex: optIndex, amount }).catch(() => {});
+  const voteOnPrediction = useCallback(
+    (predictionId: string, optionId: string, amount: number) => {
+      let updated: Prediction | null = null;
+      setPredictions((prev) =>
+        prev.map((p) => {
+          if (p.id !== predictionId) return p;
+          const options = p.options.map((o) =>
+            o.id === optionId ? { ...o, votes: o.votes + 1 } : o
+          );
+          updated = {
+            ...p,
+            votes: p.votes + 1,
+            pool: Math.round((p.pool + amount) * 100) / 100,
+            options,
+          };
+          return updated;
+        })
+      );
+      if (updated) {
+        upsertPredictionRemote(updated).catch(() => {});
+        try {
+          const optIndex = updated.options.findIndex((o) => o.id === optionId);
+          if (optIndex >= 0 && user?.id) {
+            insertVoteRemote({
+              predictionId,
+              userId: user.id,
+              optionIndex: optIndex,
+              amount,
+            }).catch(() => {});
+          }
+        } catch {}
+        if (user) {
+          setUser({ ...user, stats: { ...user.stats, votes: (user.stats.votes || 0) + 1 } });
         }
-      } catch {}
-      if (user) {
-        setUser({ ...user, stats: { ...user.stats, votes: (user.stats.votes || 0) + 1 } });
       }
-    }
-  }, [setUser, user]);
+    },
+    [setUser, user]
+  );
 
   const addComment = useCallback((predictionId: string, comment: Comment) => {
     let updated: Prediction | null = null;

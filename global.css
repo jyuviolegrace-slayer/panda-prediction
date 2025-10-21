@@ -28,6 +28,26 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    
+    /* Onboarding specific colors */
+    --onboarding-primary: 220 100% 60%;
+    --onboarding-secondary: 160 100% 50%;
+    --onboarding-accent: 280 100% 70%;
+    --onboarding-background: 230 35% 7%;
+    --onboarding-card: 230 20% 12%;
+    --onboarding-text: 0 0% 98%;
+    --onboarding-muted: 220 15% 65%;
+    
+    /* Auth specific colors */
+    --auth-background: 230 35% 7%;
+    --auth-card: 230 20% 12%;
+    --auth-card-hover: 230 20% 15%;
+    --auth-primary: 260 100% 70%;
+    --auth-secondary: 280 100% 75%;
+    --auth-accent: 300 100% 80%;
+    --auth-text: 0 0% 98%;
+    --auth-muted: 220 15% 65%;
+    --auth-border: 230 20% 20%;
   }
 
   .dark:root {
@@ -54,5 +74,38 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    
+    /* Onboarding specific colors - dark mode */
+    --onboarding-primary: 220 100% 65%;
+    --onboarding-secondary: 160 100% 55%;
+    --onboarding-accent: 280 100% 75%;
+    --onboarding-background: 230 35% 5%;
+    --onboarding-card: 230 20% 8%;
+    --onboarding-text: 0 0% 98%;
+    --onboarding-muted: 220 15% 70%;
+    
+    /* Auth specific colors - dark mode */
+    --auth-background: 230 35% 5%;
+    --auth-card: 230 20% 8%;
+    --auth-card-hover: 230 20% 12%;
+    --auth-primary: 260 100% 75%;
+    --auth-secondary: 280 100% 80%;
+    --auth-accent: 300 100% 85%;
+    --auth-text: 0 0% 98%;
+    --auth-muted: 220 15% 75%;
+    --auth-border: 230 20% 15%;
+    
+    /* Tab bar specific colors */
+    --tab-bar-background: 230 20% 8%;
+    --tab-bar-active: 220 100% 65%;
+    --tab-bar-inactive: 220 15% 50%;
+    --tab-bar-plus-bg: 220 100% 65%;
+    --tab-bar-plus-fg: 0 0% 100%;
+    
+    /* Trending card gradients */
+    --trending-gradient-1-start: 0 100% 60%;
+    --trending-gradient-1-end: 280 100% 70%;
+    --trending-gradient-2-start: 220 100% 60%;
+    --trending-gradient-2-end: 180 100% 50%;
   }
 }
