@@ -56,7 +56,7 @@ export default function Auth() {
 
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor="hsl(230, 35%, 7%)" />
+      {/* <StatusBar barStyle="light-content" backgroundColor="hsl(230, 35%, 7%)" /> */}
       <Stack.Screen
         options={{
           title: 'Auth',
@@ -68,12 +68,10 @@ export default function Auth() {
         <View className="flex-1 justify-center px-6 py-8">
           {/* Header */}
           <Animated.View entering={FadeInUp.delay(200).duration(600)} className="mb-8 items-center">
-            <Text variant="h1" className="text-auth-text mb-2 text-center text-3xl font-bold">
-              Auth
+            <Text variant="h1" className="text-auth-text mb-2 text-center text-5xl font-bold">
+              Foresight
             </Text>
-            <Text className="text-auth-muted text-center text-base">
-              Choose your authentication method
-            </Text>
+            <Text className="text-auth-text text-center text-base">Predict Freely, Win Boldly</Text>
           </Animated.View>
 
           {/* 3D Illustration */}
@@ -109,13 +107,13 @@ export default function Auth() {
         </View>
 
         {/* Footer */}
-        <Animated.View entering={FadeInUp.delay(800).duration(400)} className="px-6 pb-8">
+        {/* <Animated.View entering={FadeInUp.delay(800).duration(400)} className="px-6 pb-8">
           <Text className="text-auth-muted text-center text-xs">
             By connecting your account, you agree to our{' '}
             <Text className="text-auth-primary">Terms of Service</Text> and{' '}
             <Text className="text-auth-primary">Privacy Policy</Text>
           </Text>
-        </Animated.View>
+        </Animated.View> */}
       </View>
     </>
   );

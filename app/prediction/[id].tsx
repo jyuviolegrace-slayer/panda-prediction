@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { FlatList, Image, Modal, Pressable, ScrollView, View } from 'react-native';
+import {
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+  TouchableOpacity,
+} from 'react-native';
 import { Stack, useLocalSearchParams, router } from 'expo-router';
 import { useStore, type Comment } from '@/lib/store';
 import { Text } from '@/components/ui/text';
@@ -10,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup } from '@/components/ui/radio-group';
 import { CardInput } from '@/components/ui/card-input';
 import { Separator } from '@/components/ui/separator';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function useCountdown(endMs: number) {
   const [remaining, setRemaining] = React.useState(endMs - Date.now());
@@ -22,10 +31,39 @@ function useCountdown(endMs: number) {
   return `${hours}h ${minutes}m`;
 }
 
+function CustomHeader({
+  title,
+  author,
+}: {
+  title: string;
+  author: { username: string; avatar: string };
+}) {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View className="px-4 pb-4" style={{ paddingTop: insets.top + 16 }}>
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1">
+          <Text className="mb-2 text-2xl font-bold text-white">{title}</Text>
+          <View className="flex-row items-center gap-2">
+            <Avatar source={{ uri: author.avatar }} size={24} />
+            <Text className="text-base text-white">{author.username}</Text>
+          </View>
+        </View>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="h-10 w-10 items-center justify-center rounded-full bg-gray-700">
+          <Text className="text-lg font-bold text-white">×</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 export default function PredictionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { predictions, user, addComment } = useStore();
-  const prediction = predictions.find(p => p.id === id);
+  const prediction = predictions.find((p) => p.id === id);
 
   if (!prediction) return null;
 
@@ -51,11 +89,14 @@ export default function PredictionDetail() {
   }
 
   return (
-    <>
-      <Stack.Screen options={{ title: 'Prediction' }} />
+    <View className="flex-1 bg-background">
+      <Stack.Screen options={{ title: 'Prediction', headerShown: false }} />
+      <CustomHeader title={prediction.title} author={prediction.author} />
       <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 24 }}>
-        {prediction.thumbnail && <Image source={{ uri: prediction.thumbnail }} className="h-56 w-full" />}
-        <View className="p-4 gap-3">
+        {prediction.thumbnail && (
+          <Image source={{ uri: prediction.thumbnail }} className="h-56 w-full" />
+        )}
+        <View className="gap-3 p-4">
           <Text variant="h3">{prediction.title}</Text>
           <View className="flex-row gap-2">
             <Badge variant="success">Pool: {prediction.pool.toFixed(2)} USDC</Badge>
@@ -65,11 +106,19 @@ export default function PredictionDetail() {
 
           <Separator className="my-3" />
 
-          <Text variant="h4" className="mb-2">Options</Text>
+          <Text variant="h4" className="mb-2">
+            Options
+          </Text>
           <View className="gap-3">
-            {prediction.options.map(opt => (
-              <OptionRow key={opt.id} predictionId={prediction.id} optionId={opt.id} label={opt.label} image={opt.image} />)
-            )}
+            {prediction.options.map((opt) => (
+              <OptionRow
+                key={opt.id}
+                predictionId={prediction.id}
+                optionId={opt.id}
+                label={opt.label}
+                image={opt.image}
+              />
+            ))}
           </View>
 
           <Separator className="my-4" />
@@ -95,10 +144,12 @@ export default function PredictionDetail() {
 
           <Separator className="my-4" />
 
-          <Text variant="h4" className="mb-2">Comments</Text>
+          <Text variant="h4" className="mb-2">
+            Comments
+          </Text>
           <FlatList
             data={prediction.comments.slice(0, 3)}
-            keyExtractor={c => c.id}
+            keyExtractor={(c) => c.id}
             scrollEnabled={false}
             renderItem={({ item }) => (
               <View className="flex-row gap-3 py-3">
@@ -111,7 +162,9 @@ export default function PredictionDetail() {
             )}
           />
           {prediction.comments.length > 3 ? (
-            <Button variant="ghost" onPress={() => router.push(`/prediction/${prediction.id}/comments`)}>
+            <Button
+              variant="ghost"
+              onPress={() => router.push(`/prediction/${prediction.id}/comments`)}>
               <Text>View all comments ({prediction.comments.length})</Text>
             </Button>
           ) : null}
@@ -128,16 +181,28 @@ export default function PredictionDetail() {
           </View>
         </View>
       </ScrollView>
-    </>
+    </View>
   );
 }
 
-function OptionRow({ predictionId, optionId, label, image }: { predictionId: string; optionId: string; label: string; image?: string | null }) {
+function OptionRow({
+  predictionId,
+  optionId,
+  label,
+  image,
+}: {
+  predictionId: string;
+  optionId: string;
+  label: string;
+  image?: string | null;
+}) {
   const [modalVisible, setModalVisible] = React.useState(false);
 
   return (
     <>
-      <Pressable onPress={() => setModalVisible(true)} className="rounded-xl border border-input p-3">
+      <Pressable
+        onPress={() => setModalVisible(true)}
+        className="rounded-xl border border-input p-3">
         <Text className="font-medium">{label}</Text>
         {image && <Image source={{ uri: image }} className="mt-2 h-32 w-full rounded-lg" />}
       </Pressable>
@@ -151,7 +216,17 @@ function OptionRow({ predictionId, optionId, label, image }: { predictionId: str
   );
 }
 
-function VoteModal({ visible, onClose, predictionId, optionId }: { visible: boolean; onClose: () => void; predictionId: string; optionId: string }) {
+function VoteModal({
+  visible,
+  onClose,
+  predictionId,
+  optionId,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  predictionId: string;
+  optionId: string;
+}) {
   const { voteOnPrediction } = useStore();
   const [amount, setAmount] = React.useState<'0.5' | '1' | '5' | 'Custom'>('1');
   const [custom, setCustom] = React.useState('');
@@ -171,7 +246,9 @@ function VoteModal({ visible, onClose, predictionId, optionId }: { visible: bool
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 items-center justify-end bg-background/60">
         <View className="w-full rounded-t-2xl bg-card p-4">
-          <Text variant="h4" className="mb-3">Place your vote</Text>
+          <Text variant="h4" className="mb-3">
+            Place your vote
+          </Text>
           <RadioGroup
             options={[
               { label: '0.5 USDC', value: '0.5' },

@@ -3,12 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { Image, View } from 'react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
   withSpring,
   withTiming,
-  runOnJS
+  runOnJS,
 } from 'react-native-reanimated';
 import { cn } from '@/lib/utils';
 
@@ -43,21 +43,22 @@ export function TwitterLoginButton({ onPress, loading = false }: TwitterLoginBut
     <Animated.View style={animatedStyle}>
       <Button
         className={cn(
-          "h-14 rounded-2xl bg-auth-card border border-auth-border/50",
-          "active:bg-auth-card-hover shadow-lg shadow-black/20",
-          loading && "opacity-50"
+          'border-auth-border/50 h-14 rounded-2xl border bg-primary',
+          'active:bg-auth-card-hover shadow-lg shadow-black/20',
+          loading && 'opacity-50'
         )}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        disabled={loading}
-      >
+        disabled={loading}>
         <View className="flex-row items-center gap-3">
           {/* TODO: Replace with actual Twitter logo */}
           <Image
-            source={{ uri: 'https://via.placeholder.com/24x24/1DA1F2/FFFFFF?text=T' }}
+            source={{
+              uri: 'https://rhiveaobslchlliqharj.supabase.co/storage/v1/object/public/thumbnails/x-logo.jpg',
+            }}
             className="h-6 w-6 rounded"
           />
-          <Text className="text-lg font-medium text-auth-text">
+          <Text className="text-auth-text text-lg font-medium">
             {loading ? 'Connecting...' : 'Login with Twitter'}
           </Text>
         </View>

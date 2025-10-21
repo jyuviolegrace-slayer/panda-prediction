@@ -25,36 +25,64 @@ interface OnboardingScreen {
   backgroundColor: string;
 }
 
+// const onboardingData: OnboardingScreen[] = [
+//   {
+//     id: 1,
+//     title: 'Node',
+//     subtitle: 'The new NFT marketplace',
+//     description: 'Node is a platform that aims to build a new creative economy.',
+//     image: 'https://via.placeholder.com/300x200/6366f1/ffffff?text=NFT+Marketplace',
+//     backgroundColor: 'bg-[hsl(var(--onboarding-background))]',
+//   },
+//   {
+//     id: 2,
+//     title: 'Secure',
+//     subtitle: 'Get success in the crypto art',
+//     description: 'Node is a platform that aims to build a new creative economy.',
+//     image: 'https://via.placeholder.com/300x200/10b981/ffffff?text=Crypto+Art',
+//     backgroundColor: 'bg-[hsl(var(--onboarding-background))]',
+//   },
+//   {
+//     id: 3,
+//     title: 'NFT',
+//     subtitle: 'A new NFT experience',
+//     description: 'Node is a platform that aims to build a new creative economy.',
+//     image: 'https://via.placeholder.com/300x200/f59e0b/ffffff?text=NFT+Experience',
+//     backgroundColor: 'bg-[hsl(var(--onboarding-background))]',
+//   },
+// ];
+
 const onboardingData: OnboardingScreen[] = [
   {
     id: 1,
-    title: 'Node',
-    subtitle: 'The new NFT marketplace',
-    description: 'Node is a platform that aims to build a new creative economy.',
-    image: 'https://via.placeholder.com/300x200/6366f1/ffffff?text=NFT+Marketplace',
+    title: 'Bet Bold',
+    subtitle: 'Unleash Your Predictions',
+    description:
+      'Dive into a vibrant Solana market where you shape bets on anything, openly and freely.',
+    image: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=Bold+Bets',
     backgroundColor: 'bg-[hsl(var(--onboarding-background))]',
   },
   {
     id: 2,
-    title: 'Secure',
-    subtitle: 'Get success in the crypto art',
-    description: 'Node is a platform that aims to build a new creative economy.',
-    image: 'https://via.placeholder.com/300x200/10b981/ffffff?text=Crypto+Art',
+    title: 'Lightning Fast',
+    subtitle: 'Solana’s Edge',
+    description: 'Zip through trades with Solana’s speed—secure, cheap, and unstoppable.',
+    image: 'https://via.placeholder.com/300x200/059669/ffffff?text=Fast+Trades',
     backgroundColor: 'bg-[hsl(var(--onboarding-background))]',
   },
   {
     id: 3,
-    title: 'NFT',
-    subtitle: 'A new NFT experience',
-    description: 'Node is a platform that aims to build a new creative economy.',
-    image: 'https://via.placeholder.com/300x200/f59e0b/ffffff?text=NFT+Experience',
+    title: 'No Limits',
+    subtitle: 'Own the Future',
+    description: 'Create or join markets on any topic - no gatekeepers, just pure potential.',
+    image: 'https://via.placeholder.com/300x200/d97706/ffffff?text=Limitless',
     backgroundColor: 'bg-[hsl(var(--onboarding-background))]',
   },
 ];
 
 const ProgressDots = ({ currentIndex, total }: { currentIndex: number; total: number }) => {
   return (
-    <View className="flex-row justify-center gap-2 mb-8">
+    <View className="mb-8 flex-row justify-center gap-2">
       {Array.from({ length: total }).map((_, index) => (
         <Animated.View
           key={index}
@@ -91,35 +119,28 @@ const OnboardingScreenComponent = ({
   });
 
   return (
-    <Animated.View
-      style={[animatedStyle]}
-      className="flex-1 items-center justify-center px-6"
-    >
+    <Animated.View style={[animatedStyle]} className="flex-1 items-center justify-center px-6">
       {/* Decorative elements */}
-      <View className="absolute top-20 left-8 w-4 h-4 rounded-full bg-[hsl(var(--onboarding-secondary))] opacity-60" />
-      <View className="absolute top-32 right-12 w-6 h-6 rounded-full bg-[hsl(var(--onboarding-accent))] opacity-40" />
-      <View className="absolute bottom-40 left-12 w-3 h-3 rounded-full bg-[hsl(var(--onboarding-primary))] opacity-50" />
-      <View className="absolute bottom-60 right-8 w-5 h-5 rounded-full bg-[hsl(var(--onboarding-secondary))] opacity-30" />
+      <View className="absolute left-8 top-20 h-4 w-4 rounded-full bg-[hsl(var(--onboarding-secondary))] opacity-60" />
+      <View className="absolute right-12 top-32 h-6 w-6 rounded-full bg-[hsl(var(--onboarding-accent))] opacity-40" />
+      <View className="absolute bottom-40 left-12 h-3 w-3 rounded-full bg-[hsl(var(--onboarding-primary))] opacity-50" />
+      <View className="absolute bottom-60 right-8 h-5 w-5 rounded-full bg-[hsl(var(--onboarding-secondary))] opacity-30" />
 
       {/* Main content */}
-      <View className="items-center mb-12">
+      <View className="mb-12 items-center">
         <Animated.View
           entering={FadeInRight.delay(200)}
-          className="mb-8 p-4 rounded-3xl bg-[hsl(var(--onboarding-card))] shadow-lg"
-        >
+          className="mb-8 rounded-3xl bg-[hsl(var(--onboarding-card))] p-4 shadow-lg">
           <Image
             source={{ uri: screen.image }}
-            className="w-64 h-48 rounded-2xl"
+            className="h-48 w-64 rounded-2xl"
             resizeMode="cover"
           />
           {/* TODO: Replace with actual image asset */}
         </Animated.View>
 
         <Animated.View entering={FadeInRight.delay(400)} className="items-center">
-          <Text
-            variant="h1"
-            className="text-[hsl(var(--onboarding-text))] mb-2 text-5xl font-bold"
-          >
+          <Text variant="h1" className="mb-2 text-5xl font-bold text-[hsl(var(--onboarding-text))]">
             {screen.title}
           </Text>
         </Animated.View>
@@ -128,14 +149,12 @@ const OnboardingScreenComponent = ({
       <Animated.View entering={FadeInRight.delay(600)} className="items-center px-4">
         <Text
           variant="h3"
-          className="text-[hsl(var(--onboarding-text))] text-center mb-4 text-2xl font-semibold"
-        >
+          className="mb-4 text-center text-2xl font-semibold text-[hsl(var(--onboarding-text))]">
           {screen.subtitle}
         </Text>
         <Text
           variant="lead"
-          className="text-[hsl(var(--onboarding-muted))] text-center leading-6 max-w-sm"
-        >
+          className="max-w-sm text-center leading-6 text-[hsl(var(--onboarding-muted))]">
           {screen.description}
         </Text>
       </Animated.View>
@@ -179,12 +198,11 @@ export default function OnboardingScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <View className="flex-1 bg-[hsl(var(--onboarding-background))]">
         {/* Skip button */}
-        <View className="absolute top-12 right-6 z-10">
+        <View className="absolute right-6 top-12 z-10">
           <Pressable
             onPress={skipToEnd}
-            className="px-4 py-2 rounded-full bg-[hsl(var(--onboarding-card))] opacity-80"
-          >
-            <Text className="text-[hsl(var(--onboarding-muted))] font-medium">Skip</Text>
+            className="rounded-full bg-[hsl(var(--onboarding-card))] px-4 py-2 opacity-80">
+            <Text className="font-medium text-[hsl(var(--onboarding-muted))]">Skip</Text>
           </Pressable>
         </View>
 
@@ -197,14 +215,10 @@ export default function OnboardingScreen() {
               width: SCREEN_WIDTH * onboardingData.length,
             },
           ]}
-          className="flex-1"
-        >
+          className="flex-1">
           {onboardingData.map((screen, index) => (
             <View key={screen.id} style={{ width: SCREEN_WIDTH }} className="flex-1">
-              <OnboardingScreenComponent
-                screen={screen}
-                isActive={index === currentIndex}
-              />
+              <OnboardingScreenComponent screen={screen} isActive={index === currentIndex} />
             </View>
           ))}
         </Animated.View>
@@ -213,35 +227,33 @@ export default function OnboardingScreen() {
         <View className="px-6 pb-12">
           <ProgressDots currentIndex={currentIndex} total={onboardingData.length} />
 
-          <View className="flex-row justify-between items-center">
+          <View className="flex-row items-center justify-between">
             {/* Back button */}
             <Pressable
               onPress={prevScreen}
               disabled={currentIndex === 0}
-              className={`w-12 h-12 rounded-full items-center justify-center ${
+              className={`h-12 w-12 items-center justify-center rounded-full ${
                 currentIndex === 0
                   ? 'bg-transparent'
                   : 'bg-[hsl(var(--onboarding-card))] active:bg-[hsl(var(--onboarding-card))]/80'
-              }`}
-            >
+              }`}>
               {currentIndex > 0 && (
-                <Text className="text-[hsl(var(--onboarding-text))] text-lg">←</Text>
+                <Text className="text-lg text-[hsl(var(--onboarding-text))]">←</Text>
               )}
             </Pressable>
 
             {/* Next/Get Started button */}
             {isLastScreen ? (
               <Link href="/(auth)/auth" asChild>
-                <Button className="flex-1 mx-4 h-14 rounded-2xl bg-[hsl(var(--onboarding-primary))] active:bg-[hsl(var(--onboarding-primary))]/90">
-                  <Text className="text-white text-lg font-semibold">Get Started</Text>
+                <Button className="mx-4 h-14 flex-1 rounded-2xl bg-[hsl(var(--onboarding-primary))] active:bg-[hsl(var(--onboarding-primary))]/90">
+                  <Text className="text-lg font-semibold text-white">Get Started</Text>
                 </Button>
               </Link>
             ) : (
               <Button
                 onPress={nextScreen}
-                className="flex-1 mx-4 h-14 rounded-2xl bg-[hsl(var(--onboarding-primary))] active:bg-[hsl(var(--onboarding-primary))]/90"
-              >
-                <Text className="text-white text-lg font-semibold">Next</Text>
+                className="mx-4 h-14 flex-1 rounded-2xl bg-[hsl(var(--onboarding-primary))] active:bg-[hsl(var(--onboarding-primary))]/90">
+                <Text className="text-lg font-semibold text-white">Next</Text>
               </Button>
             )}
 
@@ -249,14 +261,13 @@ export default function OnboardingScreen() {
             <Pressable
               onPress={nextScreen}
               disabled={isLastScreen}
-              className={`w-12 h-12 rounded-full items-center justify-center ${
+              className={`h-12 w-12 items-center justify-center rounded-full ${
                 isLastScreen
                   ? 'bg-transparent'
                   : 'bg-[hsl(var(--onboarding-card))] active:bg-[hsl(var(--onboarding-card))]/80'
-              }`}
-            >
+              }`}>
               {!isLastScreen && (
-                <Text className="text-[hsl(var(--onboarding-text))] text-lg">→</Text>
+                <Text className="text-lg text-[hsl(var(--onboarding-text))]">→</Text>
               )}
             </Pressable>
           </View>

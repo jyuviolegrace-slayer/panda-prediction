@@ -98,23 +98,27 @@ export default function HomeScreen() {
         options={{
           title: 'Home',
           headerLeft: () => (
-            <Pressable onPress={() => router.push('/(tabs)/profile')}>
+            <Pressable
+              style={{
+                padding: 16,
+              }}
+              onPress={() => router.push('/(tabs)/profile')}>
               {user ? (
-                <Avatar source={{ uri: user.avatar }} size={28} />
+                <Avatar source={{ uri: user.avatar }} size={40} />
               ) : (
-                <View className="size-7 rounded-full bg-muted" />
+                <View className="size-10 rounded-full bg-muted" />
               )}
             </Pressable>
           ),
-          headerRight: () => (
-            <Button className="mr-2 rounded-full" onPress={() => router.push('/create-vote')}>
-              <Icon as={PlusIcon} />
-              <Text>Create Vote</Text>
-            </Button>
-          ),
+          // headerRight: () => (
+          //   <Button className="mr-2 rounded-full" onPress={() => router.push('/create-vote')}>
+          //     <Icon as={PlusIcon} />
+          //     <Text>Create Vote</Text>
+          //   </Button>
+          // ),
         }}
       />
-      <View className="flex-1 bg-background">
+      <View className="flex-1 bg-background py-4">
         {loading ? (
           <View className="gap-4 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -131,7 +135,7 @@ export default function HomeScreen() {
             onRefresh={onRefresh}
             onEndReachedThreshold={0.5}
             onEndReached={loadMore}
-            ListHeaderComponent={<TrendingSection />}
+            // ListHeaderComponent={<TrendingSection />}
             ItemSeparatorComponent={() => <View className="h-3" />}
             ListFooterComponent={
               loadingMore ? (

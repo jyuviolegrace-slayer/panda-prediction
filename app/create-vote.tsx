@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, ScrollView, Switch, View } from 'react-native';
+import { Image, ScrollView, View } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Text } from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup } from '@/components/ui/radio-group';
 import { useStore, type Prediction } from '@/lib/store';
 import { pickAndUploadImage } from '@/lib/supabase';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 export default function CreateVoteScreen() {
   const { addPrediction, user } = useStore();
@@ -29,9 +31,11 @@ export default function CreateVoteScreen() {
   const [seed, setSeed] = React.useState<'0.1' | '1' | '10' | 'Custom'>('0.1');
   const [customSeed, setCustomSeed] = React.useState('');
 
-  const onAddOption = () => setOptions(prev => [...prev, `Option ${String.fromCharCode(65 + prev.length)}`]);
+  const onAddOption = () =>
+    setOptions((prev) => [...prev, `Option ${String.fromCharCode(65 + prev.length)}`]);
 
-  const durationMs = duration === '24h' ? 24 * 3600000 : duration === '12h' ? 12 * 3600000 : 3600000;
+  const durationMs =
+    duration === '24h' ? 24 * 3600000 : duration === '12h' ? 12 * 3600000 : 3600000;
   const seedValue = seed === 'Custom' ? Number(customSeed || 0) : Number(seed);
 
   const onLaunch = () => {
@@ -42,7 +46,12 @@ export default function CreateVoteScreen() {
       votes: 0,
       pool: seedValue || 0,
       comments: [],
-      options: options.map((label, idx) => ({ id: `o${idx + 1}`, label, image: optionImages[idx] || undefined, votes: 0 })),
+      options: options.map((label, idx) => ({
+        id: `o${idx + 1}`,
+        label,
+        image: optionImages[idx] || undefined,
+        votes: 0,
+      })),
       duration: durationMs,
       createdAt: new Date().toISOString(),
       author: user
@@ -61,14 +70,16 @@ export default function CreateVoteScreen() {
 
   async function onPickOption(idx: number) {
     const url = await pickAndUploadImage('option-images', 'options');
-    if (url) setOptionImages(prev => ({ ...prev, [idx]: url }));
+    if (url) setOptionImages((prev) => ({ ...prev, [idx]: url }));
   }
 
   return (
     <>
       <Stack.Screen options={{ title: 'Create Vote' }} />
-      <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ paddingBottom: 24 }}>
-        <View className="flex-row items-center justify-between mb-4">
+      <ScrollView
+        className="flex-1 bg-background p-4"
+        contentContainerStyle={{ paddingBottom: 24 }}>
+        <View className="mb-4 flex-row items-center justify-between">
           <Text className="text-muted-foreground">Step {step} of 3</Text>
           <View className="flex-row gap-2">
             {step > 1 && (
@@ -87,11 +98,21 @@ export default function CreateVoteScreen() {
         {step === 1 && (
           <View className="gap-4">
             <Text variant="h4">Question</Text>
-            <TextArea value={question} onChangeText={setQuestion} placeholder="What do you want people to predict?" />
+            <TextArea
+              value={question}
+              onChangeText={setQuestion}
+              placeholder="What do you want people to predict?"
+            />
 
-            <Text variant="h4" className="mt-2">Options</Text>
+            <Text variant="h4" className="mt-2">
+              Options
+            </Text>
             {options.map((opt, idx) => (
-              <CardInput key={idx} value={opt} onChangeText={(t) => setOptions(prev => prev.map((o, i) => (i === idx ? t : o)))} />
+              <CardInput
+                key={idx}
+                value={opt}
+                onChangeText={(t) => setOptions((prev) => prev.map((o, i) => (i === idx ? t : o)))}
+              />
             ))}
             <Button variant="secondary" onPress={onAddOption}>
               <Text>Add another option</Text>
@@ -99,42 +120,48 @@ export default function CreateVoteScreen() {
 
             <View className="mt-2 gap-3">
               <View className="flex-row items-center justify-between">
-                <Text>Embed Social Post</Text>
-                <Switch value={socialEnabled} onValueChange={setSocialEnabled} />
+                <Label>Embed Social Post</Label>
+                <Switch checked={socialEnabled} onCheckedChange={setSocialEnabled} />
               </View>
               {socialEnabled && (
-                <CardInput placeholder="https://twitter.com/..." value={socialUrl} onChangeText={setSocialUrl} />
+                <CardInput
+                  placeholder="https://twitter.com/..."
+                  value={socialUrl}
+                  onChangeText={setSocialUrl}
+                />
               )}
 
               <View className="flex-row items-center justify-between">
-                <Text>Cover Media</Text>
-                <Switch value={coverEnabled} onValueChange={setCoverEnabled} />
+                <Label>Cover Media</Label>
+                <Switch checked={coverEnabled} onCheckedChange={setCoverEnabled} />
               </View>
               {coverEnabled && (
                 <View className="gap-2">
                   <Button variant="outline" onPress={onPickCover}>
                     <Text>Upload cover</Text>
                   </Button>
-                  {coverImage && <Image source={{ uri: coverImage }} className="h-40 w-full rounded-xl" />}
+                  {coverImage && (
+                    <Image source={{ uri: coverImage }} className="h-40 w-full rounded-xl" />
+                  )}
                 </View>
               )}
 
               <View className="flex-row items-center justify-between">
-                <Text>Images Per Option</Text>
-                <Switch value={imagesPerOption} onValueChange={setImagesPerOption} />
+                <Label>Images Per Option</Label>
+                <Switch checked={imagesPerOption} onCheckedChange={setImagesPerOption} />
               </View>
               {imagesPerOption && (
                 <View className="gap-2">
                   {options.map((_, idx) => (
                     <View className="gap-2" key={idx}>
-                      <Button
-                        variant="outline"
-                        onPress={() => onPickOption(idx)}
-                      >
+                      <Button variant="outline" onPress={() => onPickOption(idx)}>
                         <Text>Upload image for option {idx + 1}</Text>
                       </Button>
                       {optionImages[idx] && (
-                        <Image source={{ uri: optionImages[idx]! }} className="h-32 w-full rounded-xl" />
+                        <Image
+                          source={{ uri: optionImages[idx]! }}
+                          className="h-32 w-full rounded-xl"
+                        />
                       )}
                     </View>
                   ))}
@@ -157,7 +184,9 @@ export default function CreateVoteScreen() {
               onChange={setDuration}
             />
 
-            <Text variant="h4" className="mt-2">Payment Token</Text>
+            <Text variant="h4" className="mt-2">
+              Payment Token
+            </Text>
             <RadioGroup
               options={[
                 { label: 'USDC', value: 'USDC' },
@@ -167,10 +196,16 @@ export default function CreateVoteScreen() {
               onChange={setToken}
             />
             {token === 'Custom' && (
-              <CardInput placeholder="Enter token symbol" value={customToken} onChangeText={setCustomToken} />
+              <CardInput
+                placeholder="Enter token symbol"
+                value={customToken}
+                onChangeText={setCustomToken}
+              />
             )}
 
-            <Text variant="h4" className="mt-2">Seed Pool</Text>
+            <Text variant="h4" className="mt-2">
+              Seed Pool
+            </Text>
             <RadioGroup
               options={[
                 { label: '0.1 USDC', value: '0.1' },
@@ -182,7 +217,12 @@ export default function CreateVoteScreen() {
               onChange={setSeed}
             />
             {seed === 'Custom' && (
-              <CardInput placeholder="Enter amount" keyboardType="decimal-pad" value={customSeed} onChangeText={setCustomSeed} />
+              <CardInput
+                placeholder="Enter amount"
+                keyboardType="decimal-pad"
+                value={customSeed}
+                onChangeText={setCustomSeed}
+              />
             )}
 
             <Button onPress={() => setStep(3)} className="mt-2">
@@ -195,18 +235,27 @@ export default function CreateVoteScreen() {
           <View className="gap-4">
             <Text variant="h4">Preview</Text>
             <Card>
-              {coverImage && <Image source={{ uri: coverImage }} className="h-40 w-full rounded-xl" />}
+              {coverImage && (
+                <Image source={{ uri: coverImage }} className="h-40 w-full rounded-xl" />
+              )}
               <CardContent className="mt-3 gap-2">
-                <Text variant="large" className="font-semibold">{question || 'Untitled Prediction'}</Text>
+                <Text variant="large" className="font-semibold">
+                  {question || 'Untitled Prediction'}
+                </Text>
                 <Text className="text-muted-foreground">Duration: {duration}</Text>
-                <Text className="text-muted-foreground">Token: {token === 'Custom' ? customToken || 'N/A' : 'USDC'}</Text>
+                <Text className="text-muted-foreground">
+                  Token: {token === 'Custom' ? customToken || 'N/A' : 'USDC'}
+                </Text>
                 <Text className="text-muted-foreground">Seed Pool: {seedValue || 0} USDC</Text>
                 <View className="mt-2 gap-2">
                   {options.map((opt, idx) => (
                     <View key={idx} className="rounded-xl border border-input p-3">
                       <Text>{opt}</Text>
                       {imagesPerOption && optionImages[idx] && (
-                        <Image source={{ uri: optionImages[idx]! }} className="mt-2 h-32 w-full rounded-lg" />
+                        <Image
+                          source={{ uri: optionImages[idx]! }}
+                          className="mt-2 h-32 w-full rounded-lg"
+                        />
                       )}
                     </View>
                   ))}

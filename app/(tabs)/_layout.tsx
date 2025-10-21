@@ -1,53 +1,51 @@
-import { Stack, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import * as React from 'react';
-import { View, Animated, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { CustomTabBar } from '@/components/ui/custom-tab-bar';
-import { NAV_THEME } from '@/lib/theme';
-import { ActivityIcon, Home, PlusIcon, SearchIcon, UserIcon } from 'lucide-react-native';
+import { ActivityIcon, Home, SearchIcon, UserIcon } from 'lucide-react-native';
 
 export default function TabsLayout() {
-  var x = (
-    <View className="flex-1 bg-background">
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: NAV_THEME.dark.colors.card },
-          headerTintColor: NAV_THEME.dark.colors.text,
-          headerShadowVisible: false,
-        }}>
-        <Stack.Screen
-          name="home"
-          options={{
-            title: 'Home',
-          }}
-        />
-        <Stack.Screen
-          name="search"
-          options={{
-            title: 'Search',
-          }}
-        />
-        <Stack.Screen
-          name="leaderboard"
-          options={{
-            title: 'Leaderboard',
-          }}
-        />
-        <Stack.Screen
-          name="profile"
-          options={{
-            title: 'Profile',
-          }}
-        />
-      </Stack>
-      {/* <CustomTabBar /> */}
-    </View>
-  );
+  // var x = (
+  //   <View className="flex-1 bg-background">
+  //     <Stack
+  //       screenOptions={{
+  //         headerStyle: { backgroundColor: NAV_THEME.dark.colors.card },
+  //         headerTintColor: NAV_THEME.dark.colors.text,
+  //         headerShadowVisible: false,
+  //       }}>
+  //       <Stack.Screen
+  //         name="home"
+  //         options={{
+  //           title: 'Home',
+  //         }}
+  //       />
+  //       <Stack.Screen
+  //         name="search"
+  //         options={{
+  //           title: 'Search',
+  //         }}
+  //       />
+  //       <Stack.Screen
+  //         name="leaderboard"
+  //         options={{
+  //           title: 'Leaderboard',
+  //         }}
+  //       />
+  //       <Stack.Screen
+  //         name="profile"
+  //         options={{
+  //           title: 'Profile',
+  //         }}
+  //       />
+  //     </Stack>
+  //     {/* <CustomTabBar /> */}
+  //   </View>
+  // );
 
   return (
     <Tabs
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
       }}>
       <Tabs.Screen
         name="home"
@@ -64,13 +62,6 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="create"
-        options={{
-          title: 'Create',
-          tabBarIcon: ({ color }) => <PlusIcon color={color} size={28} strokeWidth={2.5} />,
-        }}
-      />
-      <Tabs.Screen
         name="leaderboard"
         options={{
           title: 'Leaderboard',
@@ -84,12 +75,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => <UserIcon color={color} size={24} strokeWidth={2} />,
         }}
       />
-      {/* <Tabs.Screen
-        name="CustomTabBar"
-        options={{
-          href: null,
-        }}
-      /> */}
     </Tabs>
   );
 }
