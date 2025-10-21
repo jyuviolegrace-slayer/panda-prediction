@@ -41,6 +41,15 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        onboarding: {
+          primary: 'hsl(var(--onboarding-primary))',
+          secondary: 'hsl(var(--onboarding-secondary))',
+          accent: 'hsl(var(--onboarding-accent))',
+          background: 'hsl(var(--onboarding-background))',
+          card: 'hsl(var(--onboarding-card))',
+          text: 'hsl(var(--onboarding-text))',
+          muted: 'hsl(var(--onboarding-muted))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

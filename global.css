@@ -28,6 +28,15 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    
+    /* Onboarding specific colors */
+    --onboarding-primary: 220 100% 60%;
+    --onboarding-secondary: 160 100% 50%;
+    --onboarding-accent: 280 100% 70%;
+    --onboarding-background: 230 35% 7%;
+    --onboarding-card: 230 20% 12%;
+    --onboarding-text: 0 0% 98%;
+    --onboarding-muted: 220 15% 65%;
   }
 
   .dark:root {
@@ -54,5 +63,14 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    
+    /* Onboarding specific colors - dark mode */
+    --onboarding-primary: 220 100% 65%;
+    --onboarding-secondary: 160 100% 55%;
+    --onboarding-accent: 280 100% 75%;
+    --onboarding-background: 230 35% 5%;
+    --onboarding-card: 230 20% 8%;
+    --onboarding-text: 0 0% 98%;
+    --onboarding-muted: 220 15% 70%;
   }
 }
