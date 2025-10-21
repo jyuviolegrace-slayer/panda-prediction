@@ -29,6 +29,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.47.12
         version: 2.75.1
+      base64-arraybuffer:
+        specifier: ^1.0.2
+        version: 1.0.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -47,9 +50,12 @@ importers:
       expo-crypto:
         specifier: ~15.0.7
         version: 15.0.7(expo@54.0.13)
+      expo-file-system:
+        specifier: ~19.0.17
+        version: 19.0.17(expo@54.0.13)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))
       expo-image-picker:
-        specifier: ~15.0.7
-        version: 15.0.7(expo@54.0.13)
+        specifier: ~17.0.8
+        version: 17.0.8(expo@54.0.13)
       expo-linking:
         specifier: ~8.0.8
         version: 8.0.8(expo@54.0.13)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -1578,6 +1584,10 @@ packages:
   base-x@4.0.1:
     resolution: {integrity: sha512-uAZ8x6r6S3aUM9rbHGVOIsR15U/ZSc82b3ymnCPsT45Gk1DDvhDPdIgB5MrhirZWt+5K0EEPQH985kNqZgNPFw==}
 
+  base64-arraybuffer@1.0.2:
+    resolution: {integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==}
+    engines: {node: '>= 0.6.0'}
+
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
@@ -2038,13 +2048,13 @@ packages:
       react: '*'
       react-native: '*'
 
-  expo-image-loader@4.7.0:
-    resolution: {integrity: sha512-cx+MxxsAMGl9AiWnQUzrkJMJH4eNOGlu7XkLGnAXSJrRoIiciGaKqzeaD326IyCTV+Z1fXvIliSgNW+DscvD8g==}
+  expo-image-loader@6.0.0:
+    resolution: {integrity: sha512-nKs/xnOGw6ACb4g26xceBD57FKLFkSwEUTDXEDF3Gtcu3MqF3ZIYd3YM+sSb1/z9AKV1dYT7rMSGVNgsveXLIQ==}
     peerDependencies:
       expo: '*'
 
-  expo-image-picker@15.0.7:
-    resolution: {integrity: sha512-u8qiPZNfDb+ap6PJ8pq2iTO7JKX+ikAUQ0K0c7gXGliKLxoXgDdDmXxz9/6QdICTshJBJlBvI0MwY5NWu7A/uw==}
+  expo-image-picker@17.0.8:
+    resolution: {integrity: sha512-489ByhVs2XPoAu9zodivAKLv7hG4S/FOe8hO/C2U6jVxmRjpAKakKNjMml0IwWjf1+c/RYBqm1XxKaZ+vq/fDQ==}
     peerDependencies:
       expo: '*'
 
@@ -5900,6 +5910,8 @@ snapshots:
 
   base-x@4.0.1: {}
 
+  base64-arraybuffer@1.0.2: {}
+
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.8.18: {}
@@ -6323,14 +6335,14 @@ snapshots:
       react: 19.1.0
       react-native: 0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0)
 
-  expo-image-loader@4.7.0(expo@54.0.13):
+  expo-image-loader@6.0.0(expo@54.0.13):
     dependencies:
       expo: 54.0.13(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.12)(react-native-webview@13.15.0(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
 
-  expo-image-picker@15.0.7(expo@54.0.13):
+  expo-image-picker@17.0.8(expo@54.0.13):
     dependencies:
       expo: 54.0.13(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.12)(react-native-webview@13.15.0(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      expo-image-loader: 4.7.0(expo@54.0.13)
+      expo-image-loader: 6.0.0(expo@54.0.13)
 
   expo-keep-awake@15.0.7(expo@54.0.13)(react@19.1.0):
     dependencies:

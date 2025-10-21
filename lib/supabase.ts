@@ -3,22 +3,7 @@ import 'react-native-url-polyfill/auto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 import * as ImagePicker from 'expo-image-picker';
-
-// function getEnv(name: string): string | undefined {
-//   // Support multiple common env names to be flexible
-//   const candidates = [
-//     name,
-//     `EXPO_PUBLIC_${name}`,
-//     name.replace('REACT_NATIVE_', ''),
-//     `EXPO_PUBLIC_${name.replace('REACT_NATIVE_', '')}`,
-//   ];
-//   for (const key of candidates) {
-//     // @ts-ignore - process.env is injected by Expo for EXPO_PUBLIC_*
-//     const val = process.env?.[key];
-//     if (val) return val as string;
-//   }
-//   return undefined;
-// }
+import { decode } from 'base64-arraybuffer';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY; //getEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY') || getEnv('SUPABASE_ANON_KEY');
@@ -50,31 +35,38 @@ export async function pickAndUploadImage(
   const supabase = getSupabase();
   // Always allow picking, even if Supabase is not configured
   const result = await ImagePicker.launchImageLibraryAsync({
-    // Expo SDK 54 / expo-image-picker@15 expects an array of media types
-    // Using 'as any' keeps compatibility across minor API changes
-    mediaTypes: ['images'] as any,
-    quality: 0.8,
-  } as any);
+    mediaTypes: ['images'],
+    quality: 1,
+    base64: true,
+  });
+
   if (result.canceled) return null;
+
   const asset = result.assets[0];
 
   if (!supabase) {
     // Fallback: return local URI so the UI can still preview
     return asset.uri;
   }
+  console.log('asset', asset.fileName);
 
-  const fileExt = asset.fileName?.split('.').pop() || asset.uri.split('.').pop() || 'jpg';
-  const path = `${pathPrefix}/${Date.now()}.${fileExt}`;
-  const res = await fetch(asset.uri);
-  const blob = await res.blob();
+  const base64 = asset.base64; //await FileSystem.readAsStringAsync(asset.uri, { encoding: 'base64' });
+  if (!base64) return asset.uri;
+
+  const filePath = `${pathPrefix}/${new Date().getTime()}.${asset.type === 'image' ? 'png' : 'mp4'}`;
+  const contentType = asset.type === 'image' ? 'image/png' : 'video/mp4';
+  console.log('contentType', filePath, contentType);
+  console.log('contentType', asset.fileSize);
+
   const { error } = await supabase.storage
     .from(bucket)
-    .upload(path, blob, { upsert: true, contentType: blob.type || 'image/jpeg' });
+    .upload(filePath, decode(base64), { contentType });
+
   if (error) {
     console.warn('Supabase upload error', error);
     return null;
   }
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
   return data.publicUrl ?? null;
 }
 
