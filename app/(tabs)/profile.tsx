@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, View, Pressable, Share, Linking } from 'react-native';
+import { Image, View, Pressable, Share, Linking, ScrollView } from 'react-native';
 import { Stack } from 'expo-router';
 import { useStore } from '@/lib/store';
 import { Text } from '@/components/ui/text';
@@ -7,7 +7,16 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
 import { Icon } from '@/components/ui/icon';
-import { Edit3, Settings as SettingsIcon, Share2, Twitter } from 'lucide-react-native';
+import { GradientView } from '@/components/ui/gradient-view';
+import {
+  Edit3,
+  Settings as SettingsIcon,
+  Share2,
+  Twitter,
+  Instagram,
+  Facebook,
+  Play,
+} from 'lucide-react-native';
 import { getUserStatsRemote } from '@/lib/repositories/users';
 
 export default function ProfileScreen() {
@@ -82,7 +91,11 @@ export default function ProfileScreen() {
 
           {/* Avatar */}
           <View className="absolute -bottom-10 left-6">
-            <Avatar source={{ uri: user.avatar }} size={92} className="border-2 border-background" />
+            <Avatar
+              source={{ uri: user.avatar }}
+              size={92}
+              className="border-2 border-background"
+            />
           </View>
         </View>
 
