@@ -36,7 +36,6 @@ export default function RootLayout() {
               options={{ presentation: 'modal', title: 'Create Vote' }}
             />
             <Stack.Screen name="prediction/[id]" options={{ title: 'Prediction' }} />
-            {/* <Stack.Screen name="onboarding" component={OnboardingScreen} /> */}
           </Stack>
           <PortalHost />
         </StoreProvider>

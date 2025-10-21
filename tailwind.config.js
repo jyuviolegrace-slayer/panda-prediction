@@ -50,6 +50,17 @@ module.exports = {
           text: 'hsl(var(--onboarding-text))',
           muted: 'hsl(var(--onboarding-muted))',
         },
+        auth: {
+          background: 'hsl(var(--auth-background))',
+          card: 'hsl(var(--auth-card))',
+          'card-hover': 'hsl(var(--auth-card-hover))',
+          primary: 'hsl(var(--auth-primary))',
+          secondary: 'hsl(var(--auth-secondary))',
+          accent: 'hsl(var(--auth-accent))',
+          text: 'hsl(var(--auth-text))',
+          muted: 'hsl(var(--auth-muted))',
+          border: 'hsl(var(--auth-border))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

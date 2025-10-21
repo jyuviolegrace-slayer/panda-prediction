@@ -37,6 +37,17 @@
     --onboarding-card: 230 20% 12%;
     --onboarding-text: 0 0% 98%;
     --onboarding-muted: 220 15% 65%;
+    
+    /* Auth specific colors */
+    --auth-background: 230 35% 7%;
+    --auth-card: 230 20% 12%;
+    --auth-card-hover: 230 20% 15%;
+    --auth-primary: 260 100% 70%;
+    --auth-secondary: 280 100% 75%;
+    --auth-accent: 300 100% 80%;
+    --auth-text: 0 0% 98%;
+    --auth-muted: 220 15% 65%;
+    --auth-border: 230 20% 20%;
   }
 
   .dark:root {
@@ -72,5 +83,16 @@
     --onboarding-card: 230 20% 8%;
     --onboarding-text: 0 0% 98%;
     --onboarding-muted: 220 15% 70%;
+    
+    /* Auth specific colors - dark mode */
+    --auth-background: 230 35% 5%;
+    --auth-card: 230 20% 8%;
+    --auth-card-hover: 230 20% 12%;
+    --auth-primary: 260 100% 75%;
+    --auth-secondary: 280 100% 80%;
+    --auth-accent: 300 100% 85%;
+    --auth-text: 0 0% 98%;
+    --auth-muted: 220 15% 75%;
+    --auth-border: 230 20% 15%;
   }
 }
