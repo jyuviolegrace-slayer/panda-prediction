@@ -34,6 +34,7 @@ export default function RootLayout() {
               name="create-vote"
               options={{ presentation: 'modal', title: 'Create Vote' }}
             />
+            <Stack.Screen name="leaderboard-screen" options={{ headerShown: false }} />
             <Stack.Screen name="prediction/[id]" options={{ title: 'Prediction' }} />
           </Stack>
           <PortalHost />
