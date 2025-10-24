@@ -8,9 +8,9 @@ import { TextArea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { RadioGroup } from '@/components/ui/radio-group';
 import { useStore, type Prediction } from '@/lib/store';
-import { pickAndUploadImage } from '@/lib/supabase';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { FileUpload } from '@/components/ui/file-upload';
 
 export default function CreateVoteScreen() {
   const { addPrediction, user } = useStore();
@@ -62,16 +62,6 @@ export default function CreateVoteScreen() {
     addPrediction(newPrediction);
     router.replace('/(tabs)/home');
   };
-
-  async function onPickCover() {
-    const url = await pickAndUploadImage('thumbnails', 'covers');
-    if (url) setCoverImage(url);
-  }
-
-  async function onPickOption(idx: number) {
-    const url = await pickAndUploadImage('option-images', 'options');
-    if (url) setOptionImages((prev) => ({ ...prev, [idx]: url }));
-  }
 
   return (
     <>
@@ -136,14 +126,17 @@ export default function CreateVoteScreen() {
                 <Switch checked={coverEnabled} onCheckedChange={setCoverEnabled} />
               </View>
               {coverEnabled && (
-                <View className="gap-2">
-                  <Button variant="outline" onPress={onPickCover}>
-                    <Text>Upload cover</Text>
-                  </Button>
-                  {coverImage && (
-                    <Image source={{ uri: coverImage }} className="h-40 w-full rounded-xl" />
-                  )}
-                </View>
+                <FileUpload
+                  bucket="thumbnails"
+                  pathPrefix="covers"
+                  value={coverImage}
+                  onChange={setCoverImage}
+                  buttonLabel="Upload cover media"
+                  changeLabel="Replace cover"
+                  removeLabel="Remove cover"
+                  description="Add a cover image or GIF to make your prediction pop"
+                  previewClassName="h-40 w-full"
+                />
               )}
 
               <View className="flex-row items-center justify-between">
@@ -151,20 +144,29 @@ export default function CreateVoteScreen() {
                 <Switch checked={imagesPerOption} onCheckedChange={setImagesPerOption} />
               </View>
               {imagesPerOption && (
-                <View className="gap-2">
-                  {options.map((_, idx) => (
-                    <View className="gap-2" key={idx}>
-                      <Button variant="outline" onPress={() => onPickOption(idx)}>
-                        <Text>Upload image for option {idx + 1}</Text>
-                      </Button>
-                      {optionImages[idx] && (
-                        <Image
-                          source={{ uri: optionImages[idx]! }}
-                          className="h-32 w-full rounded-xl"
-                        />
-                      )}
-                    </View>
-                  ))}
+                <View className="gap-4">
+                  {options.map((opt, idx) => {
+                    const optionLabel = opt.trim() ? opt : `Option ${idx + 1}`;
+                    return (
+                      <FileUpload
+                        key={idx}
+                        bucket="option-images"
+                        pathPrefix={`options/option-${idx + 1}`}
+                        value={optionImages[idx] ?? null}
+                        onChange={(url) =>
+                          setOptionImages((prev) => ({
+                            ...prev,
+                            [idx]: url ?? null,
+                          }))
+                        }
+                        buttonLabel={`Add media for ${optionLabel}`}
+                        changeLabel="Replace media"
+                        removeLabel="Remove media"
+                        description="Upload a supporting visual to help voters decide"
+                        previewClassName="h-32 w-full"
+                      />
+                    );
+                  })}
                 </View>
               )}
             </View>
